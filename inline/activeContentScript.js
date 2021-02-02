@@ -1,5 +1,24 @@
 $(document).ready(function() {
 
+  $("#AnnotatedNewsPanel").click(function(){
+    $("#AnnotatedNewsPanel").animate({
+      width: "100%",
+      left: "0",
+      height: "20%",
+      bottom: "0",
+      borderRadius: "0px"
+    }, 200);
+  });
+  $("#AnnotatedNewsLogoBar").click(function(){
+    $("#AnnotatedNewsPanel").animate({
+      width: "50%",
+      left: "20%",
+      height: "10%",
+      bottom: "10%",
+      borderRadius: "10px"
+    }, 200);
+  })
+
   $("#AnnotatedNewsViewAddForm").click(function(){
     $("#AnnotatedNewsForm").css("display","inline");
     let currentSelection = window.getSelection().toString();
@@ -26,7 +45,7 @@ $(document).ready(function() {
             "payload": JSON.stringify(servableJSON)
         }, function(response){
         });
-      });
+      }
     });
 
 

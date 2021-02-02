@@ -1,6 +1,6 @@
 {
     "name": "Annotated News",
-    "version": "1.0",
+    "version": "0.1",
 
     "description": "For the curious.",
 
@@ -18,7 +18,7 @@
     }],
 
     "browser_action": {
-        "default_popup": "popup.html"
+        "default_popup": "popup/popup.html"
     },
 
     "icons": {

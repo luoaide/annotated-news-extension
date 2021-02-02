@@ -6,10 +6,14 @@ let isRunning = false;
 //Consider "messaging" the pageData object to another file to reduce complexity and keep update page seperate from modifyHTML.
 
 function modifyHTML(){
+  //This code needs to be completely reworked.
+
+
+  //Old Method of editting originalHTML:
     let strHTML = orginalHTML;
-    let annotatedNewsPanelOpen = "<div id='AnnotatedNewsPanel'> <div id='AnnotatedNewsLogoBar'></div>";
-    let annotatedNewsAddButton = "<input type='button' id='AnnotatedNewsViewAddForm' value='Add an Annotation'>";
-    let annotatedNewsAddForm = "<form id='AnnotatedNewsForm'> <p id='AnnotatedNewsHighlightedText'></p> <br> <input type='text' id='AnnotatedNewsAddText'><br><input type='submit' id='AnnotatedNewsAddSubmit'></form>";
+    let annotatedNewsPanelOpen = "<div id='AnnotatedNewsPanel'> <div id='AnnotatedNewsLogoBar'> Annotated News Panel <img id='panelLogo' src='/images/logo.PNG'> </div>";
+    let annotatedNewsAddButton = "";
+    let annotatedNewsAddForm = "";
     let annotatedNewsDisplayDiv = "<p id='AnnotatedNewsCurrentDisplay'></p>";
     let annotatedNewsPanelClose = "</div>";
 
@@ -34,6 +38,7 @@ function modifyHTML(){
             strHTML = strHTML.slice(0, startIndex) + uniqueHeadTag + thisAnnotationObject.text + tailTag + strHTML.slice(startIndex+annotationLength);
         }
     }
+    //strHTML = "<iframe id='new-window-size'>" + strHTML + "</iframe>";
     strHTML += annotatedNewsPanelOpen;
     strHTML += annotatedNewsAddButton;
     strHTML += annotatedNewsAddForm;
@@ -101,10 +106,11 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
         case "server_output":
             switch( request.command ) {
                 case "incoming_data":
-                    pageData = JSON.parse(request.payload);
+                    //when payload comes from PYTHON: pageData = JSON.parse(request.payload);
+                    pageData = request.payload;
                     orginalHTML = document.body.innerHTML;
                     document.body.innerHTML = modifyHTML();
-                    updateCurrentView();
+                    //updateCurrentView(); // FIX LOGIC.
                     sendResponse({"responseCode": "good"});
                     break;
 
