@@ -1,10 +1,93 @@
-<div id='AnnotatedNewsPanel'>
-  <div id='AnnotatedNewsLogoBar'></div>
-    <input type='button' id='AnnotatedNewsViewAddForm' value='Add an Annotation'>
-    <form id='AnnotatedNewsForm'>
-      <p id='AnnotatedNewsHighlightedText'></p> <br>
-      <input type='text' id='AnnotatedNewsAddText'><br>
-      <input type='submit' id='AnnotatedNewsAddSubmit'>
-    </form>
-  <p id='AnnotatedNewsCurrentDisplay'></p>
-</div>
+<!DOCTYPE html>
+
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <link rel="stylesheet" type="text/css" title="stylesheet" href="annotatedNewsPanel.css">
+</head>
+
+<body>
+
+  <!-- https://atomiks.github.io/tippyjs/v6/constructor/ popper.JS
+  This is not actually part of the extension. This file is a way to
+  test the development of the context panels without navigating through
+  the entire extension.
+  </menu>
+  !-->
+
+  <div id='AnnotatedNewsPanel'>
+    <div id='AnnotatedNewsLogoBar'></div>
+    <p id='AnnotatedNewsCurrentDisplay'></p>
+  </div>
+
+  <p> Lorem ipsum dolor sit amet, <span id="annotate" aria-describedby="AnnotatedNewsContextPanel" style="background-color: yellow;"> consectetur adipiscing elit, sed do eiusmod tempor incididunt</span> ut labore et dolore magna aliqua. Ut enim ad
+    minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.</p>
+
+  <div id="AnnotatedNewsContextPanel" role="AnnotatedNewsContextPanel">
+    <div id="title">Title of the Context Panel</div>
+    <div id="line"></div>
+    <div id="text">Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat.
+    </div>
+    <div id="arrow" data-popper-arrow></div>
+  </div>
+
+  <script src="/src/jquery-3.5.1.js"></script>
+  <script src="https://unpkg.com/@popperjs/core@2"></script>
+  <script>
+    const text = document.querySelector('#annotate');
+    const tooltip = document.querySelector('#AnnotatedNewsContextPanel');
+
+    const popperInstance = Popper.createPopper(text, tooltip, {
+      modifiers: [{
+        name: "offset",
+        options: {
+          offset: [0, 8],
+        },
+      }, ],
+    });
+
+    function show() {
+      // Make the tooltip visible
+      tooltip.setAttribute('data-show', '');
+
+      // Enable the event listeners
+      popperInstance.setOptions({
+        modifiers: [{
+          name: 'eventListeners',
+          enabled: true
+        }],
+      });
+
+      // Update its position
+      popperInstance.update();
+    }
+
+    function hide() {
+      // Hide the tooltip
+      tooltip.removeAttribute('data-show');
+
+      // Disable the event listeners
+      popperInstance.setOptions({
+        modifiers: [{
+          name: 'eventListeners',
+          enabled: false
+        }],
+      });
+    }
+
+    const showEvents = ['mouseenter', 'focus'];
+    const hideEvents = ['mouseleave', 'blur'];
+
+    showEvents.forEach(event => {
+      text.addEventListener(event, show);
+    });
+
+    hideEvents.forEach(event => {
+      text.addEventListener(event, hide);
+    });
+  </script>
+
+</body>
+
+</html>

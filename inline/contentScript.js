@@ -2,48 +2,65 @@ let pageData;
 let orginalHTML;
 let isRunning = false;
 
+
+
+
+///Use Popper.js for my pop-ups: https://popper.js.org/
+
+
+
 //If the data object with all of the annotations is needed, the code must go in this "isolated world".
 //Consider "messaging" the pageData object to another file to reduce complexity and keep update page seperate from modifyHTML.
 
+function addMainPanel(){
+  let newElem = "<div id='AnnotatedNewsPanel'> <div id='AnnotatedNewsLogoBar'> Annotated News Panel <img id='panelLogo' src='/images/logo.PNG'> </div>";
+  newElem += "<p id='AnnotatedNewsCurrentDisplay'></p>";
+  newElem += "</div>";
+
+  return newElem;
+}
+
+function addContextPanel(key){
+  let annotationObject = pageData[key]
+
+  let ???
+
+}
+
+function wrapAnnotation(key, strHTML){
+  //will be imported from the server via ajax and messaging
+
+  //key is a string not an object
+  let annotationObject = pageData[key];
+  let annotationLength = annotationObject.text.length;
+  let startIndex = strHTML.indexOf(annotationObject.text);
+  let tailTag = "</span>";
+  //ISSUE: The .indexOf technique fails when the "text" is interupted by another html element or something else ~behind the scenes~
+  if(startIndex != -1) {
+      //ID of each Span is AnnotatedNews followed by the corresponding key of the annotation object within annotations Object
+      //ex. AnnotatedNews0 is the first annotation... should allow access to pertinent information latter in an expandable way... ie. author, demographics, date.
+      let uniqueHeadTag = "<span class='" + "AnnotatedNewsSPAN" + "' id='" + key + "'>";
+      strHTML = strHTML.slice(0, startIndex) + uniqueHeadTag + annotationObject.text + tailTag + strHTML.slice(startIndex+annotationLength);
+  }
+
+  return strHTML;
+}
+
 function modifyHTML(){
-  //This code needs to be completely reworked.
-
-
-  //Old Method of editting originalHTML:
     let strHTML = orginalHTML;
-    let annotatedNewsPanelOpen = "<div id='AnnotatedNewsPanel'> <div id='AnnotatedNewsLogoBar'> Annotated News Panel <img id='panelLogo' src='/images/logo.PNG'> </div>";
-    let annotatedNewsAddButton = "";
-    let annotatedNewsAddForm = "";
-    let annotatedNewsDisplayDiv = "<p id='AnnotatedNewsCurrentDisplay'></p>";
-    let annotatedNewsPanelClose = "</div>";
 
-    //will be imported from the server via ajax and messaging
-    let annotationLength;
-    let startIndex;
-    let uniqueHeadTag;
-    let tailTag = "</span";
-    let thisAnnotationObject;
+    let annotatedNewsPanels = addMainPanel();
 
     for(key in pageData){
         //this website has annotions to display!
         isRunning = true;
-        //key is a string not an object
-        thisAnnotationObject = pageData[key];
-        annotationLength = thisAnnotationObject.text.length;
-        startIndex = strHTML.indexOf(thisAnnotationObject.text);
-        if(startIndex != -1) {
-            //ID of each Span is AnnotatedNews followed by the corresponding key of the annotation object within annotations Object
-            //ex. AnnotatedNews0 is the first annotation... should allow access to pertinent information latter in an expandable way... ie. author, demographics, date.
-            uniqueHeadTag = "<span class='" + "AnnotatedNewsSPAN" + "' id='" + key + "'>";
-            strHTML = strHTML.slice(0, startIndex) + uniqueHeadTag + thisAnnotationObject.text + tailTag + strHTML.slice(startIndex+annotationLength);
-        }
+
+        //add spans around the annotation text and return the entire webpage
+        strHTML = wrapAnnotation(key, strHTML);
+        annotatedNewsPanels += addContextPanel(key);
     }
-    //strHTML = "<iframe id='new-window-size'>" + strHTML + "</iframe>";
-    strHTML += annotatedNewsPanelOpen;
-    strHTML += annotatedNewsAddButton;
-    strHTML += annotatedNewsAddForm;
-    strHTML += annotatedNewsDisplayDiv;
-    strHTML += annotatedNewsPanelClose;
+
+    strHTML += annotatedNewsPanels
 
     return strHTML;
 }
@@ -80,6 +97,8 @@ window.addEventListener('scroll', function () {
 }, false);
 
 
+
+//Messaging communicates with background.js & eventually activeContentScript.js
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
     switch( request.type ) {
         case "user_input":

@@ -15,13 +15,13 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
       "command": "incoming_data",
       "payload": {
             "asdSDj46": {
-                "text": "There was no substantial evidence of election fraud, and there were nowhere near enough “irregularities” to reverse the outcome in the courts.",
+                "text": "Taken at face value, Mr. Cassidy",
                 "author": "Aiden Roberts",
                 "annotation": "I find this point very very interesting because of the way it is.",
                 "date": "August 14th, 2020"
             },
             "dvnEj234": {
-                "text": "The week was coming to a particularly demoralizing close: In Arizona, the Trump lawyers were preparing to withdraw their main lawsuit as the state tally showed Joseph R. Biden Jr. leading by more than 10,000 votes, against the 191 ballots they had identified for challenge.",
+                "text": " and one of only a few officials in the South — to acknowledge President Biden’s victory. Months later, after Mr. Trump’s campaign to overturn the election culminated in the Capitol riot, Mr. Cassidy was one",
                 "author": "Aiden Roberts",
                 "annotation": "This point is also very interesting.",
                 "date": "August 13th, 2020"
