@@ -5,9 +5,23 @@ Load a webpage.
 click the extension icon.
 click "start"
 
+## Development Notes
+Currntly annotatedNewsPanel.html is not actually part of the "extension." It is a useful device for designing and building pop-ups. As discussed in the Annotation Design Guide, there are various forms of annotations. Each one should eventually be a different js function.
+
+Uses:  popper.js to position "pop-up" context windows.
+https://popper.js.org/docs/v2/
+
+/inline   
+annotatedNewsPanel.html   
+annotatedNewsPanel.js   
+annotatedNewsPanel.css   
+
+^ creates the development-poppers to design each annotatation type.
+
+Note: poppers emerge from <span> elements b/c they are directly linked to text snippets in an article/social media source.
 
 
-##Design Discussion
+## Design Discussion
 
 ### Bottom "Toolbar"
 Features:
