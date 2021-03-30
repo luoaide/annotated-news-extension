@@ -13,7 +13,7 @@
 
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["src/jquery-3.5.1.js","inline/contentScript.js"],
+        "js": ["src/jquery-3.5.1.js","src/icons.js","inline/contentScript.js"],
         "css": ["inline/style.css"]
     }],
 

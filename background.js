@@ -28,7 +28,6 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
             }
         }
   }, function(response){
-      //alert(response.responseCode) status is given in responseCode
       chrome.tabs.executeScript({
           file: 'inline/activeContentScript.js'
       });
@@ -72,6 +71,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                     let thisURL = request.url;
                     let thisUSER = {"name": "Aiden"};
                     sendRequest(thisURL, thisUSER, thisTAB);
+                    sendResponse({"responseCode": "success"});
                     break;
                 case "turn_off":
                     chrome.tabs.sendMessage(sender.tab.id, {
@@ -81,6 +81,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                     sendResponse( {"output": "The extension is now off."} );
             }
     }
+    return true;
 });
 
 
