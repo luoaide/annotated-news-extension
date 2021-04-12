@@ -1,65 +1,39 @@
 'use strict';
 //HELPFUL RESOURCE: https://thoughtbot.com/blog/how-to-make-a-chrome-extension
-
 //from: https://www.tutorialrepublic.com/javascript-tutorial/javascript-ajax.php
 
 // I think of this backgroud script as running at all times out of view when the
 // extension is enabled. It is the controller that gives
 // us the key to interact with other content scripts that we throw into the DOM
 // of specific pages.
-function sendRequest(currentURL, currentUSER, currentTAB) {
-  //temporary... non-remote
-  chrome.tabs.sendMessage(currentTAB, {
-    //send to contentScript.js
-      "type": "server_output",
-      "command": "incoming_data",
-      "payload": {
-            "asdSDj46": {
-                "text": "Taken at face value, Mr. Cassidy",
-                "author": "Aiden Roberts",
-                "annotation": "I find this point very very interesting because of the way it is.",
-                "date": "August 14th, 2020"
-            },
-            "dvnEj234": {
-                "text": " and one of only a few officials in the South — to acknowledge President Biden’s victory. Months later, after Mr. Trump’s campaign to overturn the election culminated in the Capitol riot, Mr. Cassidy was one",
-                "author": "Aiden Roberts",
-                "annotation": "This point is also very interesting.",
-                "date": "August 13th, 2020"
-            }
-        }
-  }, function(response){
-      chrome.tabs.executeScript({
-          file: 'inline/activeContentScript.js'
-      });
-  });
 
-  /* Temporarily deactivated while I don't have a real server.
+function sendRequest(currentURL, currentUSER, currentTAB) {
     $.ajax({
-        // populate with the correct address to the Flask App
+        // populate with the correct address to the Flask App Web Server
         url: "http://10.213.149.63:5000/loadExtension",
         type: "POST",
         data: {
-            //this is date that we send to the server so it can serve the appropriate content.
+            //this is data that we send to the server so it can serve the appropriate content.
             user_current_url: currentURL,
             user_token: currentUSER
         },
         dataType: "json",
-        //returns servableJSON
-        success: function(servableJSON) {
+        //returns dataObject
+        success: function(annotationObject, sourceObject) {
             //DO SOMETHING WITH THE RETURNED JSON OUTPUT
             //Return it via sendResponse to contentScript.js
             chrome.tabs.sendMessage(currentTAB, {
                 "type": "server_output",
                 "command": "incoming_data",
-                "payload": JSON.stringify(servableJSON)
+                "annotations": JSON.stringify(annotationObject),
+                "source": JSON.stringify(sourceObject)
             }, function(response){
                 chrome.tabs.executeScript({
-                    file: 'activeContentScript.js'
+                    file: 'content/active.js'
                 });
             });
         }
     });
-    */
 }
 
 chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
@@ -69,7 +43,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                 case "turn_on":
                     let thisTAB = sender.tab.id;
                     let thisURL = request.url;
-                    let thisUSER = {"name": "Aiden"};
+                    let thisUSER = {"token": "12874"};
                     sendRequest(thisURL, thisUSER, thisTAB);
                     sendResponse({"responseCode": "success"});
                     break;
