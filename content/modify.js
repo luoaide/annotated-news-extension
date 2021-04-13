@@ -61,8 +61,8 @@ function linkData(index){
 
 function modifyHTML(){
   let toolbar = document.createElement('an-toolbar');
-  toolbar.upload(Annotations);
-  document.appendChild(toolbar);
+  //toolbar.upload(Annotations);
+  document.body.appendChild(toolbar);
 
   let length = Annotations.length;
 
@@ -104,6 +104,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                     State = "on";
                     Annotations = payload.annotations;
                     Source = payload.source;
+                    console.log(JSON.stringify(Annotations));
                     modifyHTML();
                     sendResponse({"responseCode": "success"});
                     break;

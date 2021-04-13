@@ -1,6 +1,6 @@
 'use strict';
 
-import { createPopper } from '@popperjs/core';
+const { createPopper } = Popper;
 
 // RESOURCE: https://developers.google.com/web/fundamentals/web-components
 
@@ -66,42 +66,9 @@ var templates = parser.parseFromString(templatesString, 'text/html');
 
 
 // Custom Web Components:
-class AnnotatedNewsToolbar extends HTMLElement {
-  constructor() {
-    super();
 
-    var annotations = {};
-    var index = 0;
-
-    const template = templates.getElementById('toolbar-template').content;
-    const shadowRoot = this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-  }
-
-  upload(data) {
-    annotations = data;
-  }
-
-  set incrementPosition() {
-
-  }
-
-  set decrementPosition() {
-
-  }
-
-  set setCurPos(index) {
-
-  }
-
-  set updatePreviewText() {
-    //use currentPosition
-    let elem = this.getElementById('preview');
-    elem.textContent = annotations[index].preview;
-  }
-}
-window.customElements.define("an-toolbar", AnnotatedNewsToolbar);
-
-class AnnotatedNewsPanel extends HTML Elements {
+//well.... fuck: https://bugs.chromium.org/p/chromium/issues/detail?id=390807
+class AnnotatedNewsPanel extends HTMLElement {
   //this defines the attributes that I'm going to 'watch' and call changedCallback on their change.
   static get observedAttributes() {
     return ['linkedid', 'category', 'active'];
@@ -178,9 +145,9 @@ class AnnotatedNewsPanel extends HTML Elements {
     }
   }
 }
-window.customElements.define("an-panel", AnnotatedNewsPanel)
+window.customElements.define("an-panel", AnnotatedNewsPanel);
 
-class AnnotatedNewsPopup extends HTML Elements {
+class AnnotatedNewsPopup extends HTMLElement {
   //this defines the attributes that I'm going to 'watch' and call changedCallback on their change.
   static get observedAttributes() {
     return ['linkedid', 'category'];
@@ -282,4 +249,39 @@ class AnnotatedNewsPopup extends HTML Elements {
     });
   }
 }
-window.customElements.define("an-popup", AnnotatedNewsPopup)
+window.customElements.define("an-popup", AnnotatedNewsPopup);
+
+class AnnotatedNewsToolbar extends HTMLElement {
+  constructor() {
+    super();
+
+    var annotations = {};
+    var index = 0;
+
+    const template = templates.getElementById('toolbar-template').content;
+    const shadowRoot = this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
+  }
+
+  upload(data) {
+    annotations = data;
+  }
+  //
+  // set incrementPosition() {
+  //
+  // }
+  //
+  // set decrementPosition() {
+  //
+  // }
+  //
+  // set setCurPos(index) {
+  //
+  // }
+  //
+  // set updatePreviewText() {
+  //   //use currentPosition
+  //   let elem = this.getElementById('preview');
+  //   elem.textContent = annotations[index].preview;
+  // }
+}
+window.customElements.define('an-toolbar', AnnotatedNewsToolbar);

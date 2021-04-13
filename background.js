@@ -10,10 +10,9 @@
 function sendRequest(currentURL, currentUSER, currentTAB) {
     $.ajax({
         // populate with the correct address to the Flask App Web Server
-        url: "http://10.213.149.63:5000/loadExtension",
+        url: "http://142.0.99.84:5000/loadextension",
         type: "POST",
         data: {
-            //this is data that we send to the server so it can serve the appropriate content.
             user_current_url: currentURL,
             user_token: currentUSER
         },
@@ -28,7 +27,7 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
                 "payload": JSON.stringify(dataObject)
             }, function(response){
                 chrome.tabs.executeScript({
-                    file: 'content/active.js'
+                    file: 'content/components.js'
                 });
             });
         }
@@ -42,7 +41,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                 case "turn_on":
                     let thisTAB = sender.tab.id;
                     let thisURL = request.url;
-                    let thisUSER = {"token": "12874"};
+                    let thisUSER = "12874";
                     sendRequest(thisURL, thisUSER, thisTAB);
                     sendResponse({"responseCode": "success"});
                     break;
