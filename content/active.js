@@ -2,6 +2,7 @@ let panelState = 0;
 
 $(document).ready(function() {
 
+  //this event handlers should be within the components.js web components since I can't access the SHADOW ROOT Elements
   $("#AnnotatedNewsPreview").click(function(){
     if(panelState == 0){
       $("#AnnotatedNewsPanel").animate({
@@ -27,51 +28,51 @@ $(document).ready(function() {
   });
 
   //CAN USE A QUERY SELECTOR TO GET ACCESS TO ALL OF MY NEW ELEMS.
+  //
+  // function updateCurrentView() {
+  //     if( isRunning ) {
+  //         $( ".AnnotatedNewsSPAN" ).removeClass("AnnotatedNewsCurrentSPAN");
+  //
+  //         let isCurrentSpan = ( function() {
+  //             let tempCur = $( ".AnnotatedNewsSPAN" ).first();
+  //             $( ".AnnotatedNewsSPAN" ).each(function() {
+  //                 //This logic should be upgraded, but for now it is operational.
+  //                 if( tempCur[0].getBoundingClientRect().top <= 0 && $( this )[0].getBoundingClientRect().top <= window.innerHeight ) {
+  //                     tempCur = $( this );
+  //                 }
+  //             });
+  //             return tempCur;
+  //         })();
+  //
+  //         $( isCurrentSpan ).addClass("AnnotatedNewsCurrentSPAN");
+  //         let key = $( isCurrentSpan ).attr("id");
+  //         let thisAnnotation = pageData[key];
+  //         // AUTHOR: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
+  //         // DEMOGRAPHICS$( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
+  //         // DATE: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
+  //         $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
+  //     }
+  // }
+  //
+  //
+  // window.addEventListener('scroll', function () {
+  //     updateCurrentView();
+  // }, false);
 
-  function updateCurrentView() {
-      if( isRunning ) {
-          $( ".AnnotatedNewsSPAN" ).removeClass("AnnotatedNewsCurrentSPAN");
-
-          let isCurrentSpan = ( function() {
-              let tempCur = $( ".AnnotatedNewsSPAN" ).first();
-              $( ".AnnotatedNewsSPAN" ).each(function() {
-                  //This logic should be upgraded, but for now it is operational.
-                  if( tempCur[0].getBoundingClientRect().top <= 0 && $( this )[0].getBoundingClientRect().top <= window.innerHeight ) {
-                      tempCur = $( this );
-                  }
-              });
-              return tempCur;
-          })();
-
-          $( isCurrentSpan ).addClass("AnnotatedNewsCurrentSPAN");
-          let key = $( isCurrentSpan ).attr("id");
-          let thisAnnotation = pageData[key];
-          // AUTHOR: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-          // DEMOGRAPHICS$( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-          // DATE: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-          $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-      }
-  }
-
-
-  window.addEventListener('scroll', function () {
-      updateCurrentView();
-  }, false);
-
-    // process the form
-    // $.ajax({
-    //   type:'POST', // define the type of HTTP verb we want to use (POST for our form)
-    //   url: 'http://10.213.149.63:5000/postAnnotation', // the url where we want to POST
-    //   data: newAnnotation, // our data object
-    //   dataType: 'json', // what type of data do we expect back from the server
-    //   encode: true,
-    //   success: function(servableJSON) {
-    //     chrome.tabs.sendMessage(currentTAB, {
-    //         "type": "server_output",
-    //         "command": "incoming_data",
-    //         "payload": JSON.stringify(servableJSON)
-    //     }, function(response){
-    //     });
-    //   }
-    // });
+  // process the form
+  // $.ajax({
+  //   type:'POST', // define the type of HTTP verb we want to use (POST for our form)
+  //   url: 'http://10.213.149.63:5000/postAnnotation', // the url where we want to POST
+  //   data: newAnnotation, // our data object
+  //   dataType: 'json', // what type of data do we expect back from the server
+  //   encode: true,
+  //   success: function(servableJSON) {
+  //     chrome.tabs.sendMessage(currentTAB, {
+  //         "type": "server_output",
+  //         "command": "incoming_data",
+  //         "payload": JSON.stringify(servableJSON)
+  //     }, function(response){
+  //     });
+  //   }
+  // });
 });

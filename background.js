@@ -19,14 +19,13 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
         },
         dataType: "json",
         //returns dataObject
-        success: function(annotationObject, sourceObject) {
+        success: function(dataObject) {
             //DO SOMETHING WITH THE RETURNED JSON OUTPUT
             //Return it via sendResponse to contentScript.js
             chrome.tabs.sendMessage(currentTAB, {
                 "type": "server_output",
                 "command": "incoming_data",
-                "annotations": JSON.stringify(annotationObject),
-                "source": JSON.stringify(sourceObject)
+                "payload": JSON.stringify(dataObject)
             }, function(response){
                 chrome.tabs.executeScript({
                     file: 'content/active.js'

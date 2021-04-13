@@ -7,58 +7,67 @@ var Source = {};
 // modify.js interacts directly with the DOM of the current webpage. Instead of storing HTML
 // as a string, modifying, and returning, it modifies the existing DOM.
 
-
-function addPanel(key) {
-  let panel = document.createElement('an-panel');
-  let contents = Annotations[key];
-  //TWO TYPES:
-    // PANEL that gets placed inside the annotatedNewsPanel
-    // POPUP that gets thrown at the end of the file.
+function addPanel(index, linkedID) {
+  let annot = Annotations[index];
+  let panel = document.createElement('an-panel'); // calls constructor()
+  panel.setAttibute('linkedid', linkedID); // calls attributeChangedCallback()
+  panel.setAttibute('category', annot['category']); // calls attributeChangedCallback()
+  let template = `
+      <h1 slot="title">${annot['panel-title']}</h1>
+      <img src="${annot['image']}" slot="images">
+      <p slot="body">${annot['text-bodies'][0]}</p>
+      <a href="${annot['links'][0]}" slot="links">${annot['links'][0]}</a>
+  `;
+  panel.appendChild(template);
+  document.appendChild(panel); // calls connectedCallback()
 }
 
-function addPopup(key) {
-  let popup = document.createElement('an-popup');
-  let contents = Annotations[key];
-  ///Use Popper.js for my pop-ups: https://popper.js.org/
-  //TWO TYPES:
-    // PANEL that gets placed inside the annotatedNewsPanel
-    // POPUP that gets thrown at the end of the file.
+function addPopup(index, linkedID) {
+  let annot = Annotations[index];
+  let popup = document.createElement('an-popup'); // calls constructor()
+  panel.setAttibute('linkedid', linkedID); // calls attributeChangedCallback()
+  panel.setAttibute('category', annot['category']); // calls attributeChangedCallback()
+  let template = `
+      <h1 slot="title">${annot['panel-title']}</h1>
+      <p slot="body">${annot['text-bodies'][0]}</p>
+  `;
+  popup.appendChild(template);
+  document.appendChild(popup); // calls connectedCallback()
 }
 
-function linkData(key){
+function linkData(index){
   // Takes a key to the next annotation in Annotations and does the following:
   //   1. adds a corresponding signal marker on the page to indicate an annotation exists for given text
   //   2. decides if the annotation takes the form of a Panel or Popup, adding the corresponding Element
   //      by calling the associated wrapper helper function.
 
-  // Annotation object is directly imported and accessible from messaging.js
+  //index is the index of the current annotation object in the JSON object
+  let annot = Annotations[index];
 
-  //key is a string not an object
-  let annotationObject = pageData[key];
-  let annotationLength = annotationObject.text.length;
+  //gather up all the element that has a textContent equal to the annotations key-text
+  //do all elements have a .textContent property?
+  let keyElem = document.querySelectorAll("*").find(elem => elem.textContent.includes(annot['key-text']))
+  if(keyElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
+  let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" class='an-span-wrapper'>${annot['key-text']}</span>`;
+  let newElemContents = keyElem.innerHTML.replace(annot['key-text'], newSpan);
+  keyElem.innerHTML = newElemContents;
 
-  let startIndex = html.indexOf(annotationObject.text);
-  let tailTag = "</span>";
-
-  //ISSUE: The .indexOf technique fails when the "text" is interupted by another html element or something else ~behind the scenes~
-  if(startIndex != -1) {
-      //ID of each Span is AnnotatedNews followed by the corresponding key of the annotation object within annotations Object
-      //ex. AnnotatedNews0 is the first annotation... should allow access to pertinent information latter in an expandable way... ie. author, demographics, date.
-      let uniqueHeadTag = "<span class='" + "AnnotatedNewsSPAN" + "' id='" + key + "'>";
-      html = html.slice(0, startIndex) + uniqueHeadTag + annotationObject.text + tailTag + html.slice(startIndex+annotationLength);
+  if(annot['type'] == 'panel') {
+    addPanel(index, annot['unique-id']);
+  } else if(annot['type'] == 'popup') {
+    addPopup(index, annot['unique-id']);
   }
-
 }
 
 function modifyHTML(){
-  // Ideally I need to register some kind of listener so that when the extension is started I know to call modifyHTML.
-  // Right now messaging.js calls modifyHTML, but that may not work in a production environment.
   let toolbar = document.createElement('an-toolbar');
   toolbar.upload(Annotations);
   document.appendChild(toolbar);
 
-  for(key in Annotations){
-    linkData(key);
+  let length = Annotations.length;
+
+  for(var i = 0; i < length; i++){
+    linkData(i);
   }
 }
 
@@ -91,10 +100,10 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
         case "server_output":
             switch( request.command ) {
                 case "incoming_data":
-                    //when payload comes from PYTHON: pageData = JSON.parse(request.payload);
+                    let payload = JSON.parse(request.payload);
                     State = "on";
-                    Annotations = request.annotations;
-                    Source = request.source;
+                    Annotations = payload.annotations;
+                    Source = payload.source;
                     modifyHTML();
                     sendResponse({"responseCode": "success"});
                     break;

@@ -1,94 +1,80 @@
 'use strict';
 
+import { createPopper } from '@popperjs/core';
+
 // RESOURCE: https://developers.google.com/web/fundamentals/web-components
+
+// HTML Templates to parse.
+var templatesString = `
+  <template id="toolbar-template">
+    <link rel="stylesheet" href="toolbar.css">
+    <script src="https://kit.fontawesome.com/b957d9f290.js" crossorigin="anonymous"></script>
+    <div id="wrapper">
+      <ul id='toolbar'>
+
+        <li id="gearbox" class="toolbox">
+          <i class="fa fa-gear"></i>
+        </li>
+
+        <li id="title" class="toolbox">
+          <h1>Annotated <br> News</h1>
+        </li>
+
+        <li id="preview" class="toolbox">
+          Some Text
+        </li>
+
+        <li id="arrows" class="toolbox">
+          <ul id="arrowHolder">
+            <li class="arrow" id="upArrow"><i class="fas fa-angle-double-up"></i></li>
+            <li class="arrow" id="downArrow"><i class="fas fa-angle-double-down"></i></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+  </template>
+
+  <template id="panel-template">
+    <link rel="stylesheet" href="panel.css">
+    <script src="https://kit.fontawesome.com/b957d9f290.js"></script>
+    <div id="panel">
+        <slot id="panel-title" name="title"></slot>
+        <slot name="images"></slot>
+        <slot name="body"></slot>
+        <slot name="links"></slot>
+    </div>
+  </template>
+
+  <template id="popup-template">
+    <link rel="stylesheet" href="popup.css">
+
+    <div id="popup" role="popup">
+      <slot name="title">Title of the Context Panel</slot>
+      <div id="line"></div>
+      <slot id="text" name="body"></slot>
+      <div id="arrow" data-popper-arrow></div>
+    </div>
+
+    <script src="/src/jquery-3.5.1.js"></script>
+    <script src="https://unpkg.com/@popperjs/core@2"></script>
+  </template>
+`;
+
+
+var parser = new DOMParser();
+var templates = parser.parseFromString(templatesString, 'text/html');
+
 
 // Custom Web Components:
 class AnnotatedNewsToolbar extends HTMLElement {
   constructor() {
     super();
 
-    var annotations;
-    var currentPosition;
-    const shadowRoot = this.attachShadow({mode: 'open'});
+    var annotations = {};
+    var index = 0;
 
-    //link stylesheet to new shadow DOM
-    let styleSheet = document.createElement('link');
-    styleSheet.rel = 'stylesheet';
-    styleSheet.href = 'toolbar.css';
-    shadowRoot.appendChild(styleSheet);
-
-    //link fontawesome script
-    let addScript = document.createElement('script');
-    addScript.src = 'https://kit.fontawesome.com/b957d9f290.js';
-    addScript.crossorigin = 'anonymous';
-    shadowRoot.appendChild(addScript);
-
-    //add HTML structure
-    let wrapper = document.createElement('div');
-    wrapper.id = 'wrapper';
-
-      let toolbar = document.createElement('ul');
-      toolbar.id = 'toolbar';
-
-        let gearbox = document.createElement('li');
-        gearbox.id = 'gearbox';
-        gearbox.class = 'toolbox';
-          let icon = document.createElement('i');
-          icon.class = 'fa fa-gear';
-          gearbox.appendChild(icon);
-        toolbar.appendChild(gearbox);
-
-        let title = document.createElement('li');
-        title.id = 'title';
-        title.class = 'toolbox';
-          let header = document.createElement('h1');
-          header.textContent = 'Annotated News';
-          title.appendChild(header);
-        toolbar.appendChild(title);
-
-        let preview = document.createElement('li');
-        //REGISTER LISTENERS
-        preview.id = 'preview';
-        preview.class = 'toolbox';
-          let previewText = document.createElement('p');
-          previewText.textContent = 'some text';
-          preview.appendChild(previewText);
-        preview.appendChild(preview);
-
-        let arrows = document.createElement('li');
-        //REGISTER LISTENERS
-        arrows.id = 'arrows';
-        arrows.class = 'toolbox';
-          let arrowHolder = document.createElement('ul');
-          icon.id = 'arrowHolder';
-            let upArrow = document.createElement('li');
-            upArrow.class = 'arrow';
-            upArrow.id = 'upArrow';
-            upArrow.addEventListener('click', e=> function(){
-              this.incrementPosition();
-              this.updatePreview();
-            });
-              let arrowIconUp = document.createElement('i');
-              arrowIconUp.class = 'fas fa-angle-double-up';
-              upArrow.appendChild(arrowIconUp);
-            arrowHolder.appendChild(upArrow);
-            let downArrow = document.createElement('li');
-            downArrow.class = 'arrow';
-            downArrow.id = 'downArrow';
-            upArrow.addEventListener('click', e=> function(){
-              this.decrementPosition();
-              this.updatePreview();
-            });
-              let arrowIconDown = document.createElement('i');
-              arrowIconDown.class = 'fas fa-angle-double-up';
-              downArrow.appendChild(arrowIconDown);
-            arrowHolder.appendChild(downArrow);
-          arrows.appendChild(arrowHolder);
-        toolbar.appendChild(arrows);
-
-      wrapper.appendChild(toolbar);
-    shadowRoot.appendChild(wrapper);
-
+    const template = templates.getElementById('toolbar-template').content;
+    const shadowRoot = this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
   }
 
   upload(data) {
@@ -110,54 +96,42 @@ class AnnotatedNewsToolbar extends HTMLElement {
   set updatePreviewText() {
     //use currentPosition
     let elem = this.getElementById('preview');
-    elem.textContent = annotations[currentPosition];
+    elem.textContent = annotations[index].preview;
   }
 }
 window.customElements.define("an-toolbar", AnnotatedNewsToolbar);
 
 class AnnotatedNewsPanel extends HTML Elements {
-  constructor() {
-    super();
-
-    const shadowRoot = this.attachShadow({mode: 'open'});
-
-    //link stylesheet to new shadow DOM
-    let styleSheet = document.createElement('link');
-    styleSheet.rel = 'stylesheet';
-    styleSheet.href = 'panel.css';
-    shadowRoot.appendChild(styleSheet);
-
-    //link fontawesome script
-    let addScript = document.createElement('script');
-    addScript.src = 'https://kit.fontawesome.com/b957d9f290.js';
-    addScript.crossorigin = 'anonymous';
-    shadowRoot.appendChild(addScript);
-
-    //add HTML structure "<div id='AnnotatedNewsPanel'> <p> This is the News Panel </p>";
-    panel.innerHTML = `
-      <div id='panel-title'>
-
-      <slot></slot>
-      </div>
-    `;
+  //this defines the attributes that I'm going to 'watch' and call changedCallback on their change.
+  static get observedAttributes() {
+    return ['linkedid', 'category', 'active'];
   }
 
-  get active() {
-    this.hasAttribute('active');
+  //attribute getters and setters: has linkedid and a category attribute
+  get linkedId() {
+    return this.connectedSpan.getAttribute('id');
   }
 
-  set active(val) {
-    if(val) {
-      this.setAttibute('active', 'true')
+  set linkedId(val) {
+    if(val == null) {
+      this.removeAttribute('linkedid');
     } else {
-      this.removeAttribute('active')
+      this.setAttribute('linkedid', val);
     }
   }
-}
-window.customElements.define("an-panel", AnnotatedNewsPanel)
 
-class AnnotatedNewsPopup extends HTML Elements {
-  //true or false
+  get category() {
+    return this.connectedSpan.getAttribute('category');
+  }
+
+  set category(val) {
+    if(val == null) {
+      this.removeAttribute('category');
+    } else {
+      this.setAttribute('category', val);
+    }
+  }
+
   get active() {
     this.hasAttribute('active');
   }
@@ -172,9 +146,139 @@ class AnnotatedNewsPopup extends HTML Elements {
 
   constructor() {
     super();
-    //this can use slots
-    this.addEventListener('click', e=> {
-      return
+
+    const newSpan = document.createElement('span');
+    const template = templates.getElementById('panel-template').content;
+    const shadowRoot = this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
+    this.connectedSpan = newSpan;
+  }
+
+  connectedCallback() {
+    const showEvents = ['mouseenter', 'focus'];
+    const hideEvents = ['mouseleave', 'blur'];
+
+    showEvents.forEach(event => {
+      this.connectedSpan.addEventListener(event, this.show());
+    });
+
+    hideEvents.forEach(event => {
+      this.connectedSpan.addEventListener(event, this.hide());
+    });
+  }
+
+  attributeChangedCallback(attr, oldVal, newVal) {
+    if(oldVal !== newVal) {
+      if(attr == 'linkedid') {
+        this.connectedSpan = document.getElementById(newVal); //sets the this.connectedSpan property to the appropriate span (id must be unique)
+      } else if(attr == 'category') {
+        this.connectedSpan.setAttibute('category', newVal); //determines what color is displayed to indicate annotation type
+      } else if(attr == 'active') {
+        //if active is ="true" then make the panel visable!! look at the logic active.js for help here.
+      }
+    }
+  }
+}
+window.customElements.define("an-panel", AnnotatedNewsPanel)
+
+class AnnotatedNewsPopup extends HTML Elements {
+  //this defines the attributes that I'm going to 'watch' and call changedCallback on their change.
+  static get observedAttributes() {
+    return ['linkedid', 'category'];
+  }
+
+  //attribute getters and setters: has linkedid and a category attribute
+  get linkedId() {
+    return this.connectedSpan.getAttribute('id');
+  }
+
+  set linkedId(val) {
+    if(val == null) {
+      this.removeAttribute('linkedid');
+    } else {
+      this.setAttribute('linkedid', val);
+    }
+  }
+
+  get category() {
+    return this.connectedSpan.getAttribute('category');
+  }
+
+  set category(val) {
+    if(val == null) {
+      this.removeAttribute('category');
+    } else {
+      this.setAttribute('category', val);
+    }
+  }
+
+  constructor() {
+    super();
+
+    const newSpan = document.createElement("span"); //this is a placeholder blank span
+    const template = templates.getElementById('popup-template').content;
+    const shadowRoot = this.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
+    this.connectedSpan = newSpan;                         //these two properties are needed by createPopper
+    this.popup = shadowRoot.getElementById('popup');      //these two properties are needed by createPopper
+  }
+
+  attributeChangedCallback(attr, oldVal, newVal) {
+    if(oldVal !== newVal) {
+      if(attr == 'linkedid') {
+        this.connectedSpan = document.getElementById(newVal); //sets the this.connectedSpan property to the appropriate span (id must be unique)
+      } else if(attr == 'category') {
+        this.connectedSpan.setAttibute('category', newVal); //determines what color is displayed to indicate annotation type
+      }
+    }
+  }
+
+  connectedCallback() {
+    const popperInstance = Popper.createPopper(this.connectedSpan, this.popup, {
+      modifiers: [{
+        name: "offset",
+        options: {
+          offset: [0, 8],
+        },
+      }, ],
+    });
+
+    const showEvents = ['mouseenter', 'focus'];
+    const hideEvents = ['mouseleave', 'blur'];
+
+    showEvents.forEach(event => {
+      this.connectedSpan.addEventListener(event, this.show());
+    });
+
+    hideEvents.forEach(event => {
+      this.connectedSpan.addEventListener(event, this.hide());
+    });
+  }
+
+  show() {
+    // Make the tooltip visible
+    this.popup.setAttribute('data-show', '');
+
+    // Enable the event listeners
+    this.popperInstance.setOptions({
+      modifiers: [{
+        name: 'eventListeners',
+        enabled: true
+      }],
+    });
+
+    // Update its position
+    this.popperInstance.update();
+  }
+
+  hide() {
+    // Hide the tooltip
+    this.popup.removeAttribute('data-show');
+
+    // Disable the event listeners
+    this.popperInstance.setOptions({
+      modifiers: [{
+        name: 'eventListeners',
+        enabled: false
+      }],
     });
   }
 }
