@@ -1,0 +1,57 @@
+<html lang="en">
+
+  <head>
+    <meta charset="UTF-8">
+    <meta name="annotatednews" content="width=device-width, initial-scale=1.0">
+    <title>Annotated News Panel</title>
+    <link rel="stylesheet" type="text/css" title="stylesheet" href="frame.css">
+
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Shadows+Into+Light&display=swap">
+
+  </head>
+
+  <body>
+    <div id="an-wrapper">
+      <ul id='toolbar'>
+
+        <li id="gearbox" class="toolbox">
+          <i class="fa fa-gear"></i>
+        </li>
+
+        <li id="title" class="toolbox">
+          <p>Annotated <br> News</p>
+        </li>
+
+        <li id="preview" class="toolbox">
+          Some Text
+        </li>
+
+        <li id="arrows" class="toolbox">
+          <ul id="arrowHolder">
+            <li class="arrow" id="upArrow"><i class="fas fa-angle-double-up"></i></li>
+            <li class="arrow" id="downArrow"><i class="fas fa-angle-double-down"></i></li>
+          </ul>
+        </li>
+      </ul>
+    </div>
+
+    <div id="panel-holder">
+    </div>
+
+    <!--This is the template for each Panel... we make a bunch them, populate with information, then hide until "selected" -->
+    <template id="panel-template">
+      <div class="an-panel">
+          <h1 class="panel-title"></h1>
+          <img class="panel-image" src="">
+          <p class="panel-body"></p>
+          <a class="panel-link">link</a>
+      </div>
+    </template>
+
+
+    <!-- Include all needed script here -->
+    <script src="../src/icons.js" crossorigin="anonymous"></script>
+    <script src="../src/jquery-3.5.1.js" crossorigin="anonymous"></script>
+    <script src="frame.js"></script>
+  </body>
+</html>

@@ -26,9 +26,10 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
                 "command": "incoming_data",
                 "payload": JSON.stringify(dataObject)
             }, function(response){
-                chrome.tabs.executeScript({
-                    file: 'content/components.js'
-                });
+                // chrome.tabs.executeScript({
+                //     file: 'content/active.js'
+                // });
+                //option to do something with response
             });
         }
     });

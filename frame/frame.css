@@ -4,7 +4,7 @@
 }
 
 /* TOOL BAR CSS */
-#wrapper {
+#an-wrapper {
   width: 100%;
   bottom: 0%;
   left: 0;
@@ -35,7 +35,7 @@
 }
 
 #title {
-  font-size: 12px;
+  font-size: 20px;
   color: black;
   text-align: center;
   background-color: white;
@@ -71,3 +71,39 @@
   cursor: pointer;
 }
 /* END TOOL BAR CSS */
+
+/* PANEL CSS */
+#panel-holder {
+  width: 60%;
+  height: 50%;
+  background-color: white;
+  z-index: 1000;
+  position: fixed;
+  left: 20%;
+  bottom: -55%;
+  text-align: center;
+  display: inline-block;
+  border-radius: 10px;
+  border: 2px solid black;
+}
+
+.an-panel{
+
+}
+
+.panel-title {
+
+}
+
+.panel-image {
+
+}
+
+.panel-link {
+
+}
+
+.panel-body {
+
+}
+/* END PANEL CSS */

@@ -13,7 +13,6 @@ const { createPopper } = Popper;
 // HTML Templates to parse.
 var templatesString = `
   <template id="toolbar-template">
-    <link rel="stylesheet" href="content/toolbar.css">
     <script src="https://kit.fontawesome.com/b957d9f290.js" crossorigin="anonymous"></script>
     <div id="wrapper">
       <ul id='toolbar'>
@@ -74,39 +73,24 @@ var templates = parser.parseFromString(templatesString, 'text/html');
 // modify.js interacts directly with the DOM of the current webpage. Instead of storing HTML
 // as a string, modifying, and returning, it modifies the existing DOM.
 
-function addPanel(index, linkedID) {
-  let annot = Annotations[index];
-  let wrapper = document.createElement('div');
-  const template = templates.getElementById('popup-template').content;
-  const shadowRoot = wrapper.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-  const panel = shadowRoot.getElementById('popup');
-  panel.setAttibute('linkedid', linkedID); // calls attributeChangedCallback()
-  panel.setAttibute('category', annot['category']); // calls attributeChangedCallback()
-  let temp_str = `
-      <h1 slot="title">${annot['panel-title']}</h1>
-      <img src="${annot['image']}" slot="images">
-      <p slot="body">${annot['text-bodies'][0]}</p>
-      <a href="${annot['links'][0]}" slot="links">${annot['links'][0]}</a>
-  `;
-  panel.appendChild(temp_str);
-  document.appendChild(wrapper); // calls connectedCallback()
-}
-
 function addPopup(index, linkedID) {
   let annot = Annotations[index];
   let wrapper = document.createElement('div');
   const template = templates.getElementById('popup-template').content;
   const shadowRoot = wrapper.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-  const popup = shadowRoot.getElementById('popup');
+  const popup = document.createElement('popup');
 
   const span = document.getElementById(linkedID);
-  popup.setAttibute('linkedid', linkedID);
-  popup.setAttibute('category', annot['category']);
+  popup.setAttribute('linkedid', linkedID);
+  popup.setAttribute('category', annot['category']);
   let temp_str = `
+    <div id="wrapper">
       <h1 slot="title">${annot['panel-title']}</h1>
       <p slot="body">${annot['text-bodies'][0]}</p>
+    </div>
   `;
-  popup.appendChild(temp_str);
+  popup.appendChild(parser.parseFromString(temp_str, 'text/html').getElementById("wrapper").cloneNode(true));
+  shadowRoot.appendChild(panel.cloneNode(true));
   const popperInstance = Popper.createPopper(span, popup, {
     modifiers: [{
       name: "offset",
@@ -115,50 +99,18 @@ function addPopup(index, linkedID) {
       },
     }, ],
   });
-  document.appendChild(wrapper);
+  document.body.appendChild(wrapper);
 
   const showEvents = ['mouseenter', 'focus'];
   const hideEvents = ['mouseleave', 'blur'];
 
   showEvents.forEach(event => {
-    span.addEventListener(event, show());
+    span.addEventListener(event, show(popperInstance));
   });
 
   hideEvents.forEach(event => {
-    span.addEventListener(event, hide());
+    span.addEventListener(event, hide(popperInstance));
   });
-
-  //HIDE AND SHOW need to be fixed to accomodate a specific popup that its' linked to.
-  /*
-  show() {
-    // Make the tooltip visible
-    popup.setAttribute('data-show', '');
-
-    // Enable the event listeners
-    this.popperInstance.setOptions({
-      modifiers: [{
-        name: 'eventListeners',
-        enabled: true
-      }],
-    });
-
-    // Update its position
-    this.popperInstance.update();
-  }
-
-  hide() {
-    // Hide the tooltip
-    this.popup.removeAttribute('data-show');
-
-    // Disable the event listeners
-    this.popperInstance.setOptions({
-      modifiers: [{
-        name: 'eventListeners',
-        enabled: false
-      }],
-    });
-  }
-  */
 }
 
 function linkData(index){
@@ -169,33 +121,49 @@ function linkData(index){
 
   //index is the index of the current annotation object in the JSON object
   let annot = Annotations[index];
-
   //gather up all the element that has a textContent equal to the annotations key-text
-  //do all elements have a .textContent property?
-  let keyElem = document.querySelectorAll("*").find(elem => elem.textContent.includes(annot['key-text']))
-  if(keyElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
+
+
+  //Strategy outlined here: https://j11y.io/javascript/replacing-text-in-the-dom-solved/
+  // Performance likely terrible...
+  let foundElem;
+  let keyElem = document.querySelectorAll("p")
+  keyElem.forEach(elem => {
+    if(elem.textContent.includes(annot['key-text'])) {
+      foundElem = elem;
+    }
+  });
+
+  if(foundElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
   let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" class='an-span-wrapper'>${annot['key-text']}</span>`;
-  let newElemContents = keyElem.innerHTML.replace(annot['key-text'], newSpan);
-  keyElem.innerHTML = newElemContents;
+  let newElemContents = foundElem.innerHTML.replace(annot['key-text'], newSpan);
+  foundElem.innerHTML = newElemContents;
 
   if(annot['type'] == 'panel') {
-    addPanel(index, annot['unique-id']);
+    chrome.runtime.sendMessage({
+        "type": "to_frame",
+        "command": "add_panel",
+        "annotation": JSON.stringify(annot)
+    });
   } else if(annot['type'] == 'popup') {
     addPopup(index, annot['unique-id']);
   }
 }
 
 function modifyHTML(){
-  let wrapper = document.createElement('div');
-  const template = templates.getElementById('toolbar-template').content;
-  const shadowRoot = wrapper.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-  document.body.appendChild(wrapper);
+  var frame = document.createElement('iframe');
+  frame.setAttribute('src', chrome.runtime.getURL("frame/frame.html"));
+  frame.setAttribute('id', 'annotatednews-root')
+  frame.setAttribute('type', 'content')
+  frame.setAttribute('style', 'width: 100% !important; bottom: 0% !important; left: 0 !important; position: fixed !important; text-align: center!important;')
+
+  document.body.appendChild(frame);
 
   let length = Annotations.length;
-
   for(var i = 0; i < length; i++){
     linkData(i);
   }
+
 }
 
 
@@ -229,9 +197,8 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                 case "incoming_data":
                     let payload = JSON.parse(request.payload);
                     State = "on";
-                    Annotations = payload.annotations;
+                    Annotations = payload.annotations['annotations'];
                     Source = payload.source;
-                    console.log(JSON.stringify(Annotations));
                     modifyHTML();
                     sendResponse({"responseCode": "success"});
                     break;

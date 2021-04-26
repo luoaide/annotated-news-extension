@@ -1,31 +1,50 @@
-let panelState = 0;
-
+//https://stackoverflow.com/questions/4698118/google-chrome-extensions-how-to-include-jquery-in-programmatically-injected-con
+//
 $(document).ready(function() {
+  //SECTION 1
+  //BASED ON CATEGORY, STYLE THE .an-span-wrapper span elements and animate underline effects
 
-  //this event handlers should be within the components.js web components since I can't access the SHADOW ROOT Elements
-  $("#AnnotatedNewsPreview").click(function(){
-    if(panelState == 0){
-      $("#AnnotatedNewsPanel").animate({
-        bottom: "0"
-      }, 100);
-      $("#AnnotatedNewsToolbarWrapper").animate({
-        bottom: "50%",
-        width: "60%",
-        left: "20%"
-      }, 100);
-      panelState = 1;
-    } else {
-      $("#AnnotatedNewsPanel").animate({
-        bottom: "-55%"
-      }, 100);
-      $("#AnnotatedNewsToolbarWrapper").animate({
-        bottom: "0%",
-        width: "100%",
-        left: "0"
-      }, 100);
-      panelState = 0;
-    }
-  });
+
+  //SECTION 2
+  //SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
+  //HIDE AND SHOW need to be fixed to accomodate a specific popup that its' linked to.
+  /*
+  show() {
+    // Make the tooltip visible
+    popup.setAttribute('data-show', '');
+
+    // Enable the event listeners
+    this.popperInstance.setOptions({
+      modifiers: [{
+        name: 'eventListeners',
+        enabled: true
+      }],
+    });
+
+    // Update its position
+    this.popperInstance.update();
+  }
+
+  hide() {
+    // Hide the tooltip
+    this.popup.removeAttribute('data-show');
+
+    // Disable the event listeners
+    this.popperInstance.setOptions({
+      modifiers: [{
+        name: 'eventListeners',
+        enabled: false
+      }],
+    });
+  }
+  */
+});
+
+
+
+
+
+/*
 
   //CAN USE A QUERY SELECTOR TO GET ACCESS TO ALL OF MY NEW ELEMS.
   //
@@ -76,3 +95,4 @@ $(document).ready(function() {
   //   }
   // });
 });
+*/
