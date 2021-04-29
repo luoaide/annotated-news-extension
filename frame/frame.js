@@ -1,5 +1,4 @@
 let panelState = 0;
-var port = chrome.runtime.connect();
 
 $(document).ready(function() {
 
@@ -7,7 +6,7 @@ $(document).ready(function() {
   //SHOW THE EXPANDED ANNOTATED NEWS SCREEN WHEN CLICKED
   $("#preview").click(function(){
     if(panelState == 0){
-      $("#panel").animate({
+      $("#panel-holder").animate({
         bottom: "0"
       }, 100);
       $("#an-wrapper").animate({
@@ -17,7 +16,7 @@ $(document).ready(function() {
       }, 100);
       panelState = 1;
     } else {
-      $("#panel").animate({
+      $("#panel-holder").animate({
         bottom: "-55%"
       }, 100);
       $("#an-wrapper").animate({
@@ -32,38 +31,53 @@ $(document).ready(function() {
 });
 
 function addPanel(annot) {
-  alert("adding");
   //annot: is a JSON object with all the annotations at a given index.
 
-  //https://stackoverflow.com/questions/926916/how-to-get-the-bodys-content-of-an-iframe-in-javascript
-  //https://stackoverflow.com/questions/14451358/how-to-pick-element-inside-iframe-using-document-getelementbyid
-  //var frame = document.getElementById('annotatednews-root').contentWindow.document;
+  let panel = document.createElement('div');
+  panel.class = 'an-panel';
+  panel.linkedid = annot['linked-id'];
+  panel.category = annot['category'];
 
-  //https://developer.mozilla.org/en-US/docs/Web/HTML/Element/template
-  //https://stackoverflow.com/questions/32815250/accessing-the-document-of-a-cross-domain-iframe-using-an-extension-in-chrome-45
-  var template = document.getElementById("panel-template");
-  var panel = template.content.cloneNode(true);
+  //add a header
+  let header = document.createElement('h1');
+  header.class = 'panel-title';
+  header.textContent = annot['panel-title'];
+  panel.appendChild(header);
 
-  panel.setAttribute('linkedid', annot['linked-id']);
-  panel.setAttribute('category', annot['category']);
-  panel.querySelector('.panel-title').textContent = annot['panel-title'];
-  panel.querySelector('.panel-image').setAttribute('src', annot['image']);
-  panel.querySelector('.panel-body').textContent = annot['text-bodies'];
-  panel.querySelector('.panel-link').setAttribute('href', annot['links'][0]);
+  //add a image
+  let image = document.createElement('img');
+  image.class = 'panel-image';
+  image.src = annot['image'];
+  panel.appendChild(image);
+
+  //add a text body
+  let text = document.createElement('p');
+  text.class = 'panel-body';
+  text.textContent = annot['text-bodies']
+  panel.appendChild(text);
+
+  //add a link
+  let link = document.createElement('a');
+  link.class = 'panel-link';
+  link.textContent = "Heres a link to external resources";
+  link.href = annot['links'][0];
+  panel.appendChild(link);
 
   document.getElementById("panel-holder").appendChild(panel);
 }
 
 
 //https://www.msgtrail.com/articles/20200223-1106-passing-data-to-and-from-an-extension-sandbox/
-window.addEventListener("message", (request) => {
+window.addEventListener("message", function(event) {
+    let request = event.data;
+    console.log(request);
     switch( request.type ) {
-        case "to_frame":
+        case "to_frame": //message to the frame
             switch( request.command ) {
-                case "add_panel":
-                    let annotation = JSON.parse(request.annotation)
-                    addPanel(annotation);
+                case "add_panel": //message coming from modify.js
+                    console.log("message recieved");
+                    let annot = JSON.parse(request.annotation)
+                    addPanel(annot);
             }
     }
-    return true;
 });

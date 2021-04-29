@@ -10,7 +10,7 @@
 function sendRequest(currentURL, currentUSER, currentTAB) {
     $.ajax({
         // populate with the correct address to the Flask App Web Server
-        url: "http://142.0.99.84:5000/loadextension",
+        url: "http://10.2.20.240:9095/loadextension",
         type: "POST",
         data: {
             user_current_url: currentURL,

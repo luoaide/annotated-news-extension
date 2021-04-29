@@ -86,11 +86,11 @@ function addPopup(index, linkedID) {
   let temp_str = `
     <div id="wrapper">
       <h1 slot="title">${annot['panel-title']}</h1>
-      <p slot="body">${annot['text-bodies'][0]}</p>
+      <p slot="body">${annot['text-bodies']}</p>
     </div>
   `;
   popup.appendChild(parser.parseFromString(temp_str, 'text/html').getElementById("wrapper").cloneNode(true));
-  shadowRoot.appendChild(panel.cloneNode(true));
+  shadowRoot.appendChild(popup.cloneNode(true));
   const popperInstance = Popper.createPopper(span, popup, {
     modifiers: [{
       name: "offset",
@@ -100,7 +100,7 @@ function addPopup(index, linkedID) {
     }, ],
   });
   document.body.appendChild(wrapper);
-
+/*
   const showEvents = ['mouseenter', 'focus'];
   const hideEvents = ['mouseleave', 'blur'];
 
@@ -111,6 +111,16 @@ function addPopup(index, linkedID) {
   hideEvents.forEach(event => {
     span.addEventListener(event, hide(popperInstance));
   });
+  */
+}
+
+function addPanel(annot){
+  var iframe = document.getElementById('annotatednews-root');
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "add_panel",
+    "annotation": JSON.stringify(annot)
+  }, "*");
 }
 
 function linkData(index){
@@ -140,13 +150,9 @@ function linkData(index){
   foundElem.innerHTML = newElemContents;
 
   if(annot['type'] == 'panel') {
-    chrome.runtime.sendMessage({
-        "type": "to_frame",
-        "command": "add_panel",
-        "annotation": JSON.stringify(annot)
-    });
+    addPanel(annot);
   } else if(annot['type'] == 'popup') {
-    addPopup(index, annot['unique-id']);
+    //addPopup(index, annot['unique-id']);
   }
 }
 
@@ -159,11 +165,13 @@ function modifyHTML(){
 
   document.body.appendChild(frame);
 
-  let length = Annotations.length;
-  for(var i = 0; i < length; i++){
-    linkData(i);
+  //https://javascript.info/cross-window-communication
+  frame.onload = function(){
+    let length = Annotations.length;
+    for(var i = 0; i < length; i++){
+      linkData(i);
+    }
   }
-
 }
 
 
