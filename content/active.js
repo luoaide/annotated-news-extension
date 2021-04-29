@@ -1,44 +1,88 @@
 //https://stackoverflow.com/questions/4698118/google-chrome-extensions-how-to-include-jquery-in-programmatically-injected-con
-//
+const { createPopper } = Popper;
+
+//HIDE AND SHOW FUNCTIONS FOR THE POPUPS
+function show(span, popup) {
+  //create the new popper with popper.js.org/docs/v2/
+  const popperInstance = Popper.createPopper(span.get(), popup.get())
+  /*, {
+    modifiers: [{
+      name: "offset",
+      options: {
+        offset: [0, 8],
+      },
+    }, ],
+  });
+*/
+  // Make the tooltip visible
+  popup.attr('data-show', '');
+
+  // Update its position
+  console.log("updating position");
+  popperInstance.update();
+  console.log("position updated");
+}
+
+function hide(span, popup) {
+  // Hide the tooltip
+  popup.get().removeAttribute('data-show');
+}
+
+//https://stackoverflow.com/questions/11190930/jquery-not-recognizing-classes-added-to-page-dynamically
+//Tricky stuff needed becasue the element is added during the lifetime of the page...
+$(document).on('click', '.an-span-wrapper', function() {
+  console.log("display popper");
+  let linkedID = $(this).attr('id');
+  let linkedPopper = $("[linkedid=" + linkedID + "]");
+  show($(this), linkedPopper);
+});
+
+$(document).on("click", "#annotatednews-root", function(){
+  if( $(this).css("height") == "80px") {
+    $(this).css("height", "50%");
+  } else {
+    $(this).css("height", "80px");
+  }
+});
+
 $(document).ready(function() {
   //SECTION 1
   //BASED ON CATEGORY, STYLE THE .an-span-wrapper span elements and animate underline effects
-
-
+  console.log("active.js reporting present");
   //SECTION 2
   //SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
   //HIDE AND SHOW need to be fixed to accomodate a specific popup that its' linked to.
-  /*
-  show() {
-    // Make the tooltip visible
-    popup.setAttribute('data-show', '');
+  $(".an-span-wrapper").mouseenter(function(){
+    alert("here");
+    let linkedID = $(this).getAttribute('id');
+    let linkedPopper = document.querySelector("[linkedid=linkedID]");
+    alert("linkeID");
+    console.log(linkedPopper);
+    show($(this), linkedPopper);
+  });
+  $(".an-span-wrapper").mouseleave(function(){
+    let linkedID = $(this).getAttribute('id');
+    let linkedPopper = document.querySelector("[linkedid=linkedID]");
+    hide($(this), linkedPopper);
+  });
 
-    // Enable the event listeners
-    this.popperInstance.setOptions({
-      modifiers: [{
-        name: 'eventListeners',
-        enabled: true
-      }],
-    });
+  //SECTION 3
+  //CHANGE THE SIZE OF THE IFRAME AS CLICKS HAPPEN INSIDE OF IT
+  $("#annotatednews-root").click(function(){
+    if( $(this).css("height") == "80px") {
+      $(this).css("height", "50%");
+    } else {
+      $(this).css("height", "80px");
+    }
+  });
 
-    // Update its position
-    this.popperInstance.update();
-  }
-
-  hide() {
-    // Hide the tooltip
-    this.popup.removeAttribute('data-show');
-
-    // Disable the event listeners
-    this.popperInstance.setOptions({
-      modifiers: [{
-        name: 'eventListeners',
-        enabled: false
-      }],
-    });
-  }
-  */
 });
+
+window.addEventListener('scroll', function () {
+  //updateCurrentView();
+  console.log("scrolling...");
+}, false);
+
 
 
 

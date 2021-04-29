@@ -34,31 +34,31 @@ function addPanel(annot) {
   //annot: is a JSON object with all the annotations at a given index.
 
   let panel = document.createElement('div');
-  panel.class = 'an-panel';
-  panel.linkedid = annot['linked-id'];
-  panel.category = annot['category'];
+  panel.setAttribute('class', 'an-panel');
+  panel.setAttribute('linkedid', annot['unique-id']);
+  panel.setAttribute('category', annot['category']);
 
   //add a header
   let header = document.createElement('h1');
-  header.class = 'panel-title';
+  header.setAttribute('class', 'panel-title');
   header.textContent = annot['panel-title'];
   panel.appendChild(header);
 
   //add a image
   let image = document.createElement('img');
-  image.class = 'panel-image';
-  image.src = annot['image'];
+  image.setAttribute('class', 'panel-image');
+  image.src = annot['images'];
   panel.appendChild(image);
 
   //add a text body
   let text = document.createElement('p');
-  text.class = 'panel-body';
+  text.setAttribute('class', 'panel-body');
   text.textContent = annot['text-bodies']
   panel.appendChild(text);
 
   //add a link
   let link = document.createElement('a');
-  link.class = 'panel-link';
+  link.setAttribute('class' , 'panel-link');
   link.textContent = "Heres a link to external resources";
   link.href = annot['links'][0];
   panel.appendChild(link);

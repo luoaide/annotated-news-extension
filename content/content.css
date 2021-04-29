@@ -1,7 +1,18 @@
 /*This should contain CSS edits I wnat to apply to the entire page... must be careful that selectors don't overlap
   with elements that the page could reasonably already have.*/
 
+#annotatednews-root {
+  height: 80px !important;
+  width: 100% !important;
+  border: none;
+  bottom: 0% !important;
+  left: 0 !important;
+  position: fixed !important;
+  text-align: center !important;
+}
+
 .an-span-wrapper {
+  z-index: 9999999;
   background-color: yellow;
 }
 
@@ -11,4 +22,83 @@
   left: 0;
   position: fixed;
   text-align: center;
+}
+
+
+/* CSS Styling for each of the popup elements */
+an-popup {
+  background: #333;
+  color: white;
+  font-size: 13px;
+  padding: 5px;
+  width: 250px;
+  display: none;
+  z-index: 10001;
+  position: absolute;
+  cursor: pointer;
+}
+
+an-popup[category="context"] {
+  background: pink;
+}
+
+an-popup.popup-title {
+  width: 100%;
+  height: 10%;
+  font-size: 20px;
+  border-bottom: 2px solid white;
+  text-align: left;
+  padding: 0;
+}
+
+an-popup.popup-line {
+  background-color: blue;
+  height: 0px;
+  width: 100%;
+  margin: 0;
+  padding: 0;
+}
+
+an-popup.popup-text {
+  text-align: left;
+  color: white;
+  padding: 5px;
+}
+
+an-popup[data-show] {
+  display: block;
+}
+
+an-popup.popup-arrow,
+an-popup.popup-arrow::before {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  background: inherit;
+}
+
+an-popup.popup-arrow {
+  visibility: hidden;
+}
+
+an-popup.popup-arrow::before {
+  visibility: visible;
+  content: '';
+  transform: rotate(45deg);
+}
+
+an-popup[data-popper-placement^='top']>.popup-arrow {
+  bottom: -4px;
+}
+
+an-popup[data-popper-placement^='bottom']>.popup-arrow {
+  top: -4px;
+}
+
+an-popup[data-popper-placement^='left']>.popup-arrow {
+  right: -4px;
+}
+
+an-popup[data-popper-placement^='right']>.popup-arrow {
+  left: -4px;
 }

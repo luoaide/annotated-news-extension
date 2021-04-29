@@ -6,112 +6,41 @@ var Source = {};
 
 'use strict';
 
-const { createPopper } = Popper;
-
-// RESOURCE: https://developers.google.com/web/fundamentals/web-components
-
-// HTML Templates to parse.
-var templatesString = `
-  <template id="toolbar-template">
-    <script src="https://kit.fontawesome.com/b957d9f290.js" crossorigin="anonymous"></script>
-    <div id="wrapper">
-      <ul id='toolbar'>
-
-        <li id="gearbox" class="toolbox">
-          <i class="fa fa-gear"></i>
-        </li>
-
-        <li id="title" class="toolbox">
-          <h1>Annotated <br> News</h1>
-        </li>
-
-        <li id="preview" class="toolbox">
-          Some Text
-        </li>
-
-        <li id="arrows" class="toolbox">
-          <ul id="arrowHolder">
-            <li class="arrow" id="upArrow"><i class="fas fa-angle-double-up"></i></li>
-            <li class="arrow" id="downArrow"><i class="fas fa-angle-double-down"></i></li>
-          </ul>
-        </li>
-      </ul>
-    </div>
-  </template>
-
-  <template id="panel-template">
-    <link rel="stylesheet" href="content/panel.css">
-    <script src="https://kit.fontawesome.com/b957d9f290.js"></script>
-    <div id="panel">
-        <slot id="panel-title" name="title"></slot>
-        <slot name="images"></slot>
-        <slot name="body"></slot>
-        <slot name="links"></slot>
-    </div>
-  </template>
-
-  <template id="popup-template">
-    <link rel="stylesheet" href="content/popup.css">
-
-    <div id="popup" role="popup">
-      <slot name="title">Title of the Context Panel</slot>
-      <div id="line"></div>
-      <slot id="text" name="body"></slot>
-      <div id="arrow" data-popper-arrow></div>
-    </div>
-
-    <script src="/src/jquery-3.5.1.js"></script>
-    <script src="https://unpkg.com/@popperjs/core@2"></script>
-  </template>
-`;
-
-
-var parser = new DOMParser();
-var templates = parser.parseFromString(templatesString, 'text/html');
-
-
 // modify.js interacts directly with the DOM of the current webpage. Instead of storing HTML
 // as a string, modifying, and returning, it modifies the existing DOM.
 
-function addPopup(index, linkedID) {
-  let annot = Annotations[index];
-  let wrapper = document.createElement('div');
-  const template = templates.getElementById('popup-template').content;
-  const shadowRoot = wrapper.attachShadow({mode: 'open'}).appendChild(template.cloneNode(true));
-  const popup = document.createElement('popup');
-
-  const span = document.getElementById(linkedID);
-  popup.setAttribute('linkedid', linkedID);
+function addPopup(annot) {
+  let popup = document.createElement('an-popup');
+  popup.setAttribute('role', 'popup');
+  popup.setAttribute('linkedid', annot['unique-id']);
   popup.setAttribute('category', annot['category']);
-  let temp_str = `
-    <div id="wrapper">
-      <h1 slot="title">${annot['panel-title']}</h1>
-      <p slot="body">${annot['text-bodies']}</p>
-    </div>
-  `;
-  popup.appendChild(parser.parseFromString(temp_str, 'text/html').getElementById("wrapper").cloneNode(true));
-  shadowRoot.appendChild(popup.cloneNode(true));
-  const popperInstance = Popper.createPopper(span, popup, {
-    modifiers: [{
-      name: "offset",
-      options: {
-        offset: [0, 8],
-      },
-    }, ],
-  });
-  document.body.appendChild(wrapper);
-/*
-  const showEvents = ['mouseenter', 'focus'];
-  const hideEvents = ['mouseleave', 'blur'];
 
-  showEvents.forEach(event => {
-    span.addEventListener(event, show(popperInstance));
-  });
+  //add a title
+  let title = document.createElement('h2');
+  title.setAttribute('class', 'popup-title');
+  title.textContent = annot['popup-title'];
+  popup.appendChild(title);
 
-  hideEvents.forEach(event => {
-    span.addEventListener(event, hide(popperInstance));
-  });
-  */
+  //add line
+  let line = document.createElement('div');
+  line.setAttribute('class', 'popup-line');
+  popup.appendChild(line);
+
+  //add text body
+  let text = document.createElement('div');
+  text.setAttribute('class', 'popup-body');
+  text.textContent = annot['text-body'];
+  popup.appendChild(text);
+
+  //add arrow
+  let arrow = document.createElement('div');
+  arrow.setAttribute('class', 'popup-arrow');
+  arrow.setAttribute('data-popper-arrow', '');
+  popup.appendChild(arrow);
+
+  // let span = document.getElementById(annot['unique-id']);
+  // span.parentElement.appendChild(popup);
+  document.body.appendChild(popup);
 }
 
 function addPanel(annot){
@@ -145,23 +74,22 @@ function linkData(index){
   });
 
   if(foundElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
-  let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" class='an-span-wrapper'>${annot['key-text']}</span>`;
+  let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" class='an-span-wrapper' aria-describedby=""${annot['unique-id']}">${annot['key-text']}</span>`;
   let newElemContents = foundElem.innerHTML.replace(annot['key-text'], newSpan);
   foundElem.innerHTML = newElemContents;
 
   if(annot['type'] == 'panel') {
     addPanel(annot);
   } else if(annot['type'] == 'popup') {
-    //addPopup(index, annot['unique-id']);
+    addPopup(annot);
   }
 }
 
 function modifyHTML(){
   var frame = document.createElement('iframe');
   frame.setAttribute('src', chrome.runtime.getURL("frame/frame.html"));
-  frame.setAttribute('id', 'annotatednews-root')
-  frame.setAttribute('type', 'content')
-  frame.setAttribute('style', 'width: 100% !important; bottom: 0% !important; left: 0 !important; position: fixed !important; text-align: center!important;')
+  frame.setAttribute('id', 'annotatednews-root');
+  frame.setAttribute('type', 'content');
 
   document.body.appendChild(frame);
 
