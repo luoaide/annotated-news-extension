@@ -11,11 +11,12 @@
   </head>
 
   <body>
-    <div id="an-wrapper">
+
+    <div id="toolbar-wrapper">
       <ul id='toolbar'>
 
         <li id="gearbox" class="toolbox">
-          <i class="fa fa-gear"></i>
+          <i class="fa fa-gear" style="padding-top: 5px"></i>
         </li>
 
         <li id="title" class="toolbox">
@@ -23,7 +24,7 @@
         </li>
 
         <li id="preview" class="toolbox">
-          Some Text
+          <p id="preview-text"> Some Text </p>
         </li>
 
         <li id="arrows" class="toolbox">
@@ -35,17 +36,12 @@
       </ul>
     </div>
 
-    <div id="panel-holder"></div>
+    <div id="panel-holder">
+        <div id="settings" class="an-panel">
+          <h1> Here is a settings panel for users to change their settings... </h1>
+        </div>
 
-    <!--This is the template for each Panel... we make a bunch them, populate with information, then hide until "selected" -->
-    <template id="panel-template">
-      <div class="an-panel">
-          <h1 class="panel-title">default</h1>
-          <img class="panel-image" src="">
-          <p class="panel-body">default</p>
-          <a class="panel-link">link</a>
-      </div>
-    </template>
+    </div>
 
 
     <!-- Include all needed script here -->

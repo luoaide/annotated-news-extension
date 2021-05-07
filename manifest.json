@@ -14,12 +14,12 @@
 
     "content_scripts": [{
         "matches": ["<all_urls>"],
-        "js": ["src/jquery-3.5.1.js","src/popper.min.js", "src/icons.js", "content/modify.js", "content/active.js"],
+        "js": ["src/jquery-3.5.1.js","src/popper.min.js", "src/icons.js", "content/modify.js"],
         "css": ["content/content.css"],
         "all_frames": false
     }],
 
-    "web_accessible_resources": ["frame/frame.html", "frame/frame.css", "frame/frame.js"],
+    "web_accessible_resources": ["frame/frame.html", "frame/frame.css", "frame/frame.js", "content/active.js"],
 
     "browser_action": {
         "default_popup": "popup/popup.html"

@@ -20,16 +20,19 @@ function sendRequest(currentURL, currentUSER, currentTAB) {
         //returns dataObject
         success: function(dataObject) {
             //DO SOMETHING WITH THE RETURNED JSON OUTPUT
-            //Return it via sendResponse to contentScript.js
+            //Return it via post message to modify.js
             chrome.tabs.sendMessage(currentTAB, {
                 "type": "server_output",
                 "command": "incoming_data",
                 "payload": JSON.stringify(dataObject)
             }, function(response){
-                // chrome.tabs.executeScript({
-                //     file: 'content/active.js'
-                // });
-                //option to do something with response
+              //After all the elements have been modified and added to the page... load Active.JS.
+              if(response.responseCode == "success") {
+                chrome.tabs.executeScript(currentTAB, {
+                  file: 'content/active.js'
+                });
+              }
+              true;
             });
         }
     });

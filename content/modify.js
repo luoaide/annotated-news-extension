@@ -38,9 +38,11 @@ function addPopup(annot) {
   arrow.setAttribute('data-popper-arrow', '');
   popup.appendChild(arrow);
 
-  // let span = document.getElementById(annot['unique-id']);
-  // span.parentElement.appendChild(popup);
-  document.body.appendChild(popup);
+  //let span = document.getElementById(annot['unique-id']);
+  //span.parentElement.appendChild(popup);
+  //document.body.appendChild(popup);
+  let span = $("#"+ annot['unique-id']);
+  span.closest("div").append(popup);
 }
 
 function addPanel(annot){
@@ -48,7 +50,7 @@ function addPanel(annot){
   iframe.contentWindow.postMessage({
     "type": "to_frame",
     "command": "add_panel",
-    "annotation": JSON.stringify(annot)
+    "annotation": JSON.stringify(annot),
   }, "*");
 }
 
@@ -65,6 +67,7 @@ function linkData(index){
 
   //Strategy outlined here: https://j11y.io/javascript/replacing-text-in-the-dom-solved/
   // Performance likely terrible...
+  //ONLY WORKS ON P ELEMENTS FOR NOW....
   let foundElem;
   let keyElem = document.querySelectorAll("p")
   keyElem.forEach(elem => {
@@ -74,7 +77,7 @@ function linkData(index){
   });
 
   if(foundElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
-  let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" class='an-span-wrapper' aria-describedby=""${annot['unique-id']}">${annot['key-text']}</span>`;
+  let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" type="${annot['type']}" class='an-span-wrapper' aria-describedby=""${annot['unique-id']}">${annot['key-text']}</span>`;
   let newElemContents = foundElem.innerHTML.replace(annot['key-text'], newSpan);
   foundElem.innerHTML = newElemContents;
 
@@ -90,6 +93,7 @@ function modifyHTML(){
   frame.setAttribute('src', chrome.runtime.getURL("frame/frame.html"));
   frame.setAttribute('id', 'annotatednews-root');
   frame.setAttribute('type', 'content');
+  //frame.setAttribute('pageHeight') = $(body).height(); //change this value onScroll so that I can watch it from the frame.
 
   document.body.appendChild(frame);
 
@@ -136,7 +140,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                     Annotations = payload.annotations['annotations'];
                     Source = payload.source;
                     modifyHTML();
-                    sendResponse({"responseCode": "success"});
+                    sendResponse({"responseCode": "success"})
                     break;
 
                 case "unload_extension":

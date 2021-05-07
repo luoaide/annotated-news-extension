@@ -2,141 +2,174 @@
 const { createPopper } = Popper;
 
 //HIDE AND SHOW FUNCTIONS FOR THE POPUPS
-function show(span, popup) {
+function show(linkedid) {
   //create the new popper with popper.js.org/docs/v2/
-  const popperInstance = Popper.createPopper(span.get(), popup.get())
-  /*, {
-    modifiers: [{
-      name: "offset",
-      options: {
-        offset: [0, 8],
-      },
-    }, ],
-  });
-*/
-  // Make the tooltip visible
-  popup.attr('data-show', '');
+  const ref = document.getElementById(linkedid);
+  const popup = document.querySelector("[linkedid='" + linkedid + "']");
 
-  // Update its position
-  console.log("updating position");
-  popperInstance.update();
-  console.log("position updated");
+  if(!popup.hasAttribute('data-show')){
+    const popperInstance = Popper.createPopper(ref, popup, {
+      placement: 'auto',
+      strategy: 'absolute',
+      modifiers: [{
+        name: "offset",
+        options: {
+          offset: [0, 8],
+        },
+      }, ],
+    });
+    // Make the tooltip visible
+      popup.setAttribute('data-show', '');
+
+    // Update its position
+    popperInstance.update();
+  } else {
+    popup.removeAttribute('data-show');
+  }
 }
 
-function hide(span, popup) {
-  // Hide the tooltip
-  popup.get().removeAttribute('data-show');
-}
+//settup
+let panelState = 0;
 
-//https://stackoverflow.com/questions/11190930/jquery-not-recognizing-classes-added-to-page-dynamically
-//Tricky stuff needed becasue the element is added during the lifetime of the page...
-$(document).on('click', '.an-span-wrapper', function() {
-  console.log("display popper");
-  let linkedID = $(this).attr('id');
-  let linkedPopper = $("[linkedid=" + linkedID + "]");
-  show($(this), linkedPopper);
+let height = $(window).height();
+$('#annotatednews-root').css({
+  "top": (height - 80) + "px"
 });
 
-$(document).on("click", "#annotatednews-root", function(){
-  if( $(this).css("height") == "80px") {
-    $(this).css("height", "50%");
+//Set the frame content to be correct based on current view...
+updateCurrentView();
+
+//SECTION 1
+//BASED ON CATEGORY, STYLE THE .an-span-wrapper span elements and animate underline effects
+console.log("active.js reporting present");
+
+
+//SECTION 2
+//SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
+// https://stackoverflow.com/questions/11190930/jquery-not-recognizing-classes-added-to-page-dynamically
+// Tricky stuff needed becasue the element is added during the lifetime of the page...
+$(document).on('click', '.an-span-wrapper', function() {
+  //See if it is a panel or Popup:
+  if($(this).attr("type") == "panel") {
+    //If it's a panel:
+    updateFrame($(this));
+    openDrawer();
   } else {
-    $(this).css("height", "80px");
+    //If it's a popup:
+    console.log("display popper");
+    let linkedId = $(this).attr('id');
+    show(linkedId);
   }
 });
 
-$(document).ready(function() {
-  //SECTION 1
-  //BASED ON CATEGORY, STYLE THE .an-span-wrapper span elements and animate underline effects
-  console.log("active.js reporting present");
-  //SECTION 2
-  //SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
-  //HIDE AND SHOW need to be fixed to accomodate a specific popup that its' linked to.
-  $(".an-span-wrapper").mouseenter(function(){
-    alert("here");
-    let linkedID = $(this).getAttribute('id');
-    let linkedPopper = document.querySelector("[linkedid=linkedID]");
-    alert("linkeID");
-    console.log(linkedPopper);
-    show($(this), linkedPopper);
-  });
-  $(".an-span-wrapper").mouseleave(function(){
-    let linkedID = $(this).getAttribute('id');
-    let linkedPopper = document.querySelector("[linkedid=linkedID]");
-    hide($(this), linkedPopper);
-  });
-
-  //SECTION 3
-  //CHANGE THE SIZE OF THE IFRAME AS CLICKS HAPPEN INSIDE OF IT
-  $("#annotatednews-root").click(function(){
-    if( $(this).css("height") == "80px") {
-      $(this).css("height", "50%");
-    } else {
-      $(this).css("height", "80px");
-    }
-  });
-
-});
 
 window.addEventListener('scroll', function () {
-  //updateCurrentView();
-  console.log("scrolling...");
+  updateCurrentView();
 }, false);
 
 
+function openDrawer() {
+  panelState = 1;
+  console.log("opening drawer from active.js");
+  let frame = $('#annotatednews-root');
+  frame.animate({
+    "top": "50%",
+    "width": "60%",
+    "left": "20%"
+  }, 100);
+}
 
+function closeDrawer() {
+  panelState = 0;
+  console.log("closing drawer from active.js");
+  let frame = $('#annotatednews-root');
+  let height = $(window).height();
+  frame.animate({
+    "top": (height - 80) + "px",
+    "width": "100%",
+    "left": "0%"
+  }, 100);
+}
 
+function scrollUp() {
+  let prevSpan = $('.an-current.span').closest('.an-span-wrapper');
+  let height = $(window).height();
+  //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
+  $('html, body').animate({
+    scrollTop: (prevSpan.offset().top + (.25)*height)
+  }, 2000);
+  updateFrame(prevSpan);
+}
 
+function scrollDown() {
+  let nextSpan = $('.an-current.span').next('.an-span-wrapper');
+  let height = $(window).height();
+  //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
+  $('html, body').animate({
+    scrollTop: (nextSpan.offset().top + (.25)*height)
+  }, 2000);
+  updateFrame(nextSpan);
+}
 
-/*
+window.addEventListener("message", function(event) {
+    let request = event.data;
+    switch( request.type ) {
+        case "frame_output":
+            switch( request.command ) {
+                //make the frame get larger (open the drawer)
+                case "toggle_drawer":
+                    if(panelState == 0) openDrawer();
+                    else closeDrawer();
+                    break;
 
-  //CAN USE A QUERY SELECTOR TO GET ACCESS TO ALL OF MY NEW ELEMS.
-  //
-  // function updateCurrentView() {
-  //     if( isRunning ) {
-  //         $( ".AnnotatedNewsSPAN" ).removeClass("AnnotatedNewsCurrentSPAN");
-  //
-  //         let isCurrentSpan = ( function() {
-  //             let tempCur = $( ".AnnotatedNewsSPAN" ).first();
-  //             $( ".AnnotatedNewsSPAN" ).each(function() {
-  //                 //This logic should be upgraded, but for now it is operational.
-  //                 if( tempCur[0].getBoundingClientRect().top <= 0 && $( this )[0].getBoundingClientRect().top <= window.innerHeight ) {
-  //                     tempCur = $( this );
-  //                 }
-  //             });
-  //             return tempCur;
-  //         })();
-  //
-  //         $( isCurrentSpan ).addClass("AnnotatedNewsCurrentSPAN");
-  //         let key = $( isCurrentSpan ).attr("id");
-  //         let thisAnnotation = pageData[key];
-  //         // AUTHOR: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-  //         // DEMOGRAPHICS$( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-  //         // DATE: $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-  //         $( "#AnnotatedNewsCurrentDisplay" ).html(thisAnnotation.annotation);
-  //     }
-  // }
-  //
-  //
-  // window.addEventListener('scroll', function () {
-  //     updateCurrentView();
-  // }, false);
+                //redirect to the annotated news hompage
+                case "open_home_page":
+                    window.location.href = "http://annotatednews.com:9095";
+                    break;
 
-  // process the form
-  // $.ajax({
-  //   type:'POST', // define the type of HTTP verb we want to use (POST for our form)
-  //   url: 'http://10.213.149.63:5000/postAnnotation', // the url where we want to POST
-  //   data: newAnnotation, // our data object
-  //   dataType: 'json', // what type of data do we expect back from the server
-  //   encode: true,
-  //   success: function(servableJSON) {
-  //     chrome.tabs.sendMessage(currentTAB, {
-  //         "type": "server_output",
-  //         "command": "incoming_data",
-  //         "payload": JSON.stringify(servableJSON)
-  //     }, function(response){
-  //     });
-  //   }
-  // });
+                //scroll up to the previous annotation
+                case "scroll_up":
+                    scrollUp();
+                    break;
+
+                //scroll down to the previous annotation
+                case "scroll_down":
+                    scrollDown();
+            }
+    }
+    return true;
 });
-*/
+
+
+function updateFrame(spanElement){
+  $('.an-current-span').removeClass('an-current-span');
+  spanElement.addClass('an-current-span');
+  let key = $('.an-current-span').first().attr('id');
+  let category = $('.an-current-span').first().attr("category");
+  let iframe = document.getElementById('annotatednews-root');
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "update_current",
+    "curid": key,
+    "category": category
+  }, "*");
+}
+
+
+function updateCurrentView() {
+  let mid = $(window).height()/4;
+  let currentSpan =  $(".an-span-wrapper").first();
+  let minDist = 90000000;
+  $(".an-span-wrapper").each(function() {
+    //This logic should be upgraded, but for now it is operational.
+    let dist = Math.abs($( this )[0].getBoundingClientRect().top - mid)
+    if(dist < minDist) {
+      currentSpan = $( this );
+      minDist = dist;
+    }
+  });
+  if(!currentSpan.hasClass("an-current-span")) {
+    updateFrame(currentSpan);
+  }
+
+}
