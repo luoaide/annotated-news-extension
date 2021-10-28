@@ -2,7 +2,6 @@
 
 var State = "off";
 var Annotations = {};
-var Source = {};
 
 'use strict';
 
@@ -41,11 +40,11 @@ function addPopup(annot) {
   //let span = document.getElementById(annot['unique-id']);
   //span.parentElement.appendChild(popup);
   //document.body.appendChild(popup);
-  let span = $("#"+ annot['unique-id']);
+  let span = $("#" + annot['unique-id']);
   span.closest("div").append(popup);
 }
 
-function addPanel(annot){
+function addPanel(annot) {
   var iframe = document.getElementById('annotatednews-root');
   iframe.contentWindow.postMessage({
     "type": "to_frame",
@@ -54,7 +53,7 @@ function addPanel(annot){
   }, "*");
 }
 
-function linkData(index){
+function linkData(index) {
   // Takes a key to the next annotation in Annotations and does the following:
   //   1. adds a corresponding signal marker on the page to indicate an annotation exists for given text
   //   2. decides if the annotation takes the form of a Panel or Popup, adding the corresponding Element
@@ -71,24 +70,24 @@ function linkData(index){
   let foundElem;
   let keyElem = document.querySelectorAll("p")
   keyElem.forEach(elem => {
-    if(elem.textContent.includes(annot['key-text'])) {
+    if (elem.textContent.includes(annot['key-text'])) {
       foundElem = elem;
     }
   });
 
-  if(foundElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
+  if (foundElem == null) console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
   let newSpan = `<span id="${annot['unique-id']}" category="${annot['category']}" type="${annot['type']}" class='an-span-wrapper' aria-describedby=""${annot['unique-id']}">${annot['key-text']}</span>`;
   let newElemContents = foundElem.innerHTML.replace(annot['key-text'], newSpan);
   foundElem.innerHTML = newElemContents;
 
-  if(annot['type'] == 'panel') {
+  if (annot['type'] == 'panel') {
     addPanel(annot);
-  } else if(annot['type'] == 'popup') {
+  } else if (annot['type'] == 'popup') {
     addPopup(annot);
   }
 }
 
-function modifyHTML(){
+function modifyHTML() {
   var frame = document.createElement('iframe');
   frame.setAttribute('src', chrome.runtime.getURL("frame/frame.html"));
   frame.setAttribute('id', 'annotatednews-root');
@@ -98,9 +97,9 @@ function modifyHTML(){
   document.body.appendChild(frame);
 
   //https://javascript.info/cross-window-communication
-  frame.onload = function(){
+  frame.onload = function() {
     let length = Annotations.length;
-    for(var i = 0; i < length; i++){
+    for (var i = 0; i < length; i++) {
       linkData(i);
     }
   }
@@ -109,47 +108,80 @@ function modifyHTML(){
 
 //Messaging communicates with the backend (background.js) to provide modify.js with an exportable data model.
 //Messaging.js contains state information about the extension on the client side.
-chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
-    switch( request.type ) {
-        case "user_input":
-            switch( request.command ) {
-                case "turn_on":
-                    let thisURL = window.location.href;
-                    chrome.runtime.sendMessage({
-                        "type": "server_request",
-                        "command": "turn_on",
-                        "url": thisURL
-                    });
-                    sendResponse( {"output": "The extension is now running."} );
-                    break;
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  switch (request.type) {
+    case "user_input":
+      switch (request.command) {
+        case "sync":
+          let curURL = window.location.href;
+          let syncURL = "https://www.annotatednews.com/instructions";
+          if(curURL == syncURL) {
+            let studyPin = document.getElementById("studyPin").textContent;
+            let cNum = document.getElementById("userCNum").textContent;
+            // update chrome storage to reflect that we've now synced the extension to the study page.
+            chrome.storage.local.set({studyPin: studyPin}, function() {
+              console.log('extension study pin set to: ' + studyPin);
+            });
+            chrome.storage.local.set({cNum: cNum}, function() {
+              console.log('extension c number set to: ' + cNum);
+            });
+            sendResponse({
+              "status": "synced",
+              "studyPin": studyPin,
+              "cNum": cNum,
+              "output": "The extension has been successfully synced. Please proceed to the next step."
+            });
+          } else {
+            sendResponse({
+              "status": "unsynced",
+              "output": "Must be on https://www.annotatednews.com/instructions to sync the extension."
+            });
+          }
+        case "turn_on":
+          let thisURL = window.location.href;
+          chrome.runtime.sendMessage({
+            "type": "server_request",
+            "command": "turn_on",
+            "url": thisURL
+          });
+          sendResponse({
+            "output": "The extension is now running."
+          });
+          break;
 
-                case "turn_off":
-                    chrome.runtime.sendMessage({
-                        "type": "server_request",
-                        "command": "turn_off"
-                    });
-                    sendResponse( {"output": "The extension is now off."} );
-            }
-            break;
+        case "turn_off":
+          chrome.runtime.sendMessage({
+            "type": "server_request",
+            "command": "turn_off"
+          });
+          sendResponse({
+            "output": "The extension is now off."
+          });
+      }
+      break;
 
-        case "server_output":
-            switch( request.command ) {
-                case "incoming_data":
-                    let payload = JSON.parse(request.payload);
-                    State = "on";
-                    Annotations = payload.annotations['annotations'];
-                    Source = payload.source;
-                    modifyHTML();
-                    sendResponse({"responseCode": "success"})
-                    break;
+    case "server_output":
+      switch (request.command) {
+        case "incoming_data":
+          let payload = JSON.parse(request.payload);
+          State = "on";
+          Annotations = payload.annotations['annotations'];
+          Source = payload.source;
+          modifyHTML();
+          sendResponse({
+            "responseCode": "success"
+          })
+          break;
 
-                case "unload_extension":
-                    State = "off";
-                    Annotations = {};
-                    sendResponse({"responseCode": "success"});
-                    window.location.reload();
-            }
+        case "unload_extension":
+          State = "off";
+          Annotations = {};
+          sendResponse({
+            "responseCode": "success"
+          });
+          window.location.reload();
+      }
 
-    }
-    return true;
+  }
+  return true;
 });
