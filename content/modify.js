@@ -1,7 +1,7 @@
 'use strict';
 
-var State = "off";
-var Annotations = {};
+var GLOBALSTATE = "active";
+var ANNOTATIONS = {};
 
 'use strict';
 
@@ -60,7 +60,7 @@ function linkData(index) {
   //      by calling the associated wrapper helper function.
 
   //index is the index of the current annotation object in the JSON object
-  let annot = Annotations[index];
+  let annot = ANNOTATIONS[index];
   //gather up all the element that has a textContent equal to the annotations key-text
 
 
@@ -98,7 +98,7 @@ function modifyHTML() {
 
   //https://javascript.info/cross-window-communication
   frame.onload = function() {
-    let length = Annotations.length;
+    let length = ANNOTATIONS.length;
     for (var i = 0; i < length; i++) {
       linkData(i);
     }
@@ -137,6 +137,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
               "output": "Must be on https://www.annotatednews.com/instructions to sync the extension."
             });
           }
+          break;
         case "turn_on":
           let thisURL = window.location.href;
           chrome.runtime.sendMessage({
@@ -148,7 +149,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             "output": "The extension is now running."
           });
           break;
-
         case "turn_off":
           chrome.runtime.sendMessage({
             "type": "server_request",
@@ -157,6 +157,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           sendResponse({
             "output": "The extension is now off."
           });
+          break;
+        case "query_state":
+          sendResponse({
+            "status": GLOBALSTATE
+          });
       }
       break;
 
@@ -164,18 +169,19 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
       switch (request.command) {
         case "incoming_data":
           let payload = JSON.parse(request.payload);
-          State = "on";
-          Annotations = payload.annotations['annotations'];
+          console.log(payload);
+          GLOBALSTATE = "active";
+          ANNOTATIONS = payload.annotations['annotations'];
           Source = payload.source;
           modifyHTML();
           sendResponse({
             "responseCode": "success"
-          })
+          });
           break;
 
         case "unload_extension":
-          State = "off";
-          Annotations = {};
+          GLOBALSTATE = "inactive";
+          ANNOTATIONS = {};
           sendResponse({
             "responseCode": "success"
           });

@@ -14,7 +14,7 @@ function sendRequest(currentURL, studyPin, currentTAB) {
         type: "POST",
         data: {
             user_current_url: currentURL,
-            user_token: studyPin
+            study_pin: studyPin
         },
         dataType: "json",
         //returns dataObject
@@ -44,10 +44,10 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
         case "server_request":
             switch( request.command ){
                 case "turn_on":
-                    let thisTAB = sender.tab.id;
                     let thisURL = request.url;
                     let thisUSER = "1";
-                    let webContents = request.contents;
+                    let thisTAB = sender.tab.id;
+                    console.log(thisURL);
                     sendRequest(thisURL, thisUSER, thisTAB);
                     sendResponse({"responseCode": "success"});
                     break;
@@ -56,7 +56,7 @@ chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
                         "type": "server_output",
                         "command": "unload_extension"
                     });
-                    sendResponse( {"output": "The extension is now off."} );
+                    sendResponse( {"responseCode": "success"} );
             }
     }
     return true;

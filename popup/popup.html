@@ -1,6 +1,5 @@
 <!DOCTYPE html>
 <html lang="en">
-<!-- IMPLEMENT LATER: https://developer.chrome.com/docs/extensions/mv3/tut_oauth/ -->
 <head>
 	<meta charset="UTF-8">
 	<link rel="stylesheet" type="text/css" title="stylesheet" href="popupStyle.css">
@@ -16,21 +15,34 @@
 		</div>
 	</div>
 
-	<div id="syncPanel">
-    <button type="button" class="btn btn-primary btn-lg" id="syncButton">SYNC</button>
-        <!-- <button class="button" id="start">Start</button>
-        <button class="button" id="off">Off</button> -->
+	<div id="syncPanel" class="panel">
+    <p class="status-text"> Welcome to the Annotated News Extension. </p>
+    <button type="button" class="btn btn-outline-primary btn-lg" id="syncButton">SYNC</button>
 	</div>
 
-  <div id="responsePanel">
+  <div id="responsePanel" class="panel">
+    <p class="status-text"> Welcome to the Annotated News Extension. </p>
     <span id="checkmark">&#x2714;</span>
     <span id="redx">&#10060;</span>
-    <p id="status" class="text"></p>
-    <p id="studyPin" class="text"></p>
+    <p id="status" class="status-text"></p>
   </div>
 
-    <script src="/src/jquery-3.5.1.js"></script>
-    <script src="popupScript.js"></script>
+  <div id="mainPanel" class="panel">
+    <p class="status-text"> Welcome to the Annotated News Extension. </p>
+    <div id="userBox">
+      <div> <span>&#x2714;</span> Synched </div>
+      <div class="status-text">Study Pin: <span id="assignedStudyPin"></span></div>
+      <button type="button" class="btn btn-outline-dark btn-sm" id="unsync">Unsync Extension</button>
+    </div>
+    <br>
+    <p id="mainStatus" class="status-text"></p>
+    <button type="button" class="btn btn-outline-primary btn-lg" id="loadAnnotations">Load Annoations</button>
+    <button type="button" class="btn btn-outline-primary btn-lg" id="removeAnnotations">Remove Annoations</button>
+  </div>
+
+
+  <script src="/src/jquery-3.5.1.js"></script>
+  <script src="popupScript.js"></script>
 </body>
 
 </html>
