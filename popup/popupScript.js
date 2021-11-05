@@ -48,8 +48,8 @@ $(document).ready(function(){
           let studyPin = response.studyPin;
           let cNum = response.cNum;
           //for TEsTING
-          studyPin = 1;
-          cNum = 12345678;
+          // studyPin = 1;
+          // cNum = 12345678;
           //////
           $("#syncButton").css("display", "None");
           $("#checkmark").css("display", "inline");

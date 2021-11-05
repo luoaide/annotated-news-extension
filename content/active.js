@@ -29,11 +29,12 @@ function show(linkedid) {
 }
 
 //settup
-let panelState = 0;
+let panelState = 0; // may not actually need.
 
 let height = $(window).height();
 $('#annotatednews-root').css({
-  "top": (height - 80) + "px"
+  "height": ((0.6*height) + 50) + "px", // we add fifty to account for the "closeArrow" bar above the panel when open
+  "top": (height - 100) + "px"
 });
 
 //Set the frame content to be correct based on current view...
@@ -50,8 +51,8 @@ console.log("active.js reporting present");
 // Tricky stuff needed becasue the element is added during the lifetime of the page...
 $(document).on('click', '.an-span-wrapper', function() {
   //See if it is a panel or Popup:
-  if($(this).attr("type") == "panel") {
-    //If it's a panel:
+  if($(this).attr("type") == "counterpoint") {
+    //If it's a panel (panel = counterpoint):
     updateFrame($(this));
     openDrawer();
   } else {
@@ -64,7 +65,7 @@ $(document).on('click', '.an-span-wrapper', function() {
 
 
 window.addEventListener('scroll', function () {
-  updateCurrentView();
+  //updateCurrentView();
 }, false);
 
 
@@ -73,9 +74,7 @@ function openDrawer() {
   console.log("opening drawer from active.js");
   let frame = $('#annotatednews-root');
   frame.animate({
-    "top": "50%",
-    "width": "60%",
-    "left": "20%"
+    "top": "40%"
   }, 100);
 }
 
@@ -85,9 +84,7 @@ function closeDrawer() {
   let frame = $('#annotatednews-root');
   let height = $(window).height();
   frame.animate({
-    "top": (height - 80) + "px",
-    "width": "100%",
-    "left": "0%"
+    "top": (height - 100) + "px"
   }, 100);
 }
 
@@ -117,14 +114,17 @@ window.addEventListener("message", function(event) {
         case "frame_output":
             switch( request.command ) {
                 //make the frame get larger (open the drawer)
-                case "toggle_drawer":
-                    if(panelState == 0) openDrawer();
-                    else closeDrawer();
+                case "open_drawer":
+                    openDrawer();
+                    break;
+
+                case "close_drawer":
+                    closeDrawer();
                     break;
 
                 //redirect to the annotated news hompage
                 case "open_home_page":
-                    window.location.href = "http://annotatednews.com:9095";
+                    window.location.href = "https://www.annotatednews.com/instructions";
                     break;
 
                 //scroll up to the previous annotation
@@ -132,7 +132,7 @@ window.addEventListener("message", function(event) {
                     scrollUp();
                     break;
 
-                //scroll down to the previous annotation
+                //scroll down to the next annotation
                 case "scroll_down":
                     scrollDown();
             }
@@ -145,13 +145,11 @@ function updateFrame(spanElement){
   $('.an-current-span').removeClass('an-current-span');
   spanElement.addClass('an-current-span');
   let key = $('.an-current-span').first().attr('id');
-  let category = $('.an-current-span').first().attr("category");
   let iframe = document.getElementById('annotatednews-root');
   iframe.contentWindow.postMessage({
     "type": "to_frame",
     "command": "update_current",
-    "curid": key,
-    "category": category
+    "curid": key
   }, "*");
 }
 

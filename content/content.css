@@ -2,34 +2,24 @@
   with elements that the page could reasonably already have.*/
 
 #annotatednews-root {
-  height: 50% !important;
-  width: 50% !important;
-  border: none;
-  top: 100%;
-  left: 25% !important;
+  /* height and top/bottom should be handled by active.js */
+  /* height: 100px !important; */
+  /* bottom: 0; */
+  width: 100% !important;
+  border-top: 2px solid red;
+  /* left: 25% !important; */
   position: fixed !important;
   text-align: center !important;
   overflow: hidden;
-  border-radius: 15px;
-  border-left: 3px solid black;
-  border-right: 3px solid black;
+  z-index: 99999999;
 }
 
-.an-span-wrapper[category='context'] {
+.an-span-wrapper {
   z-index: 9999999;
   border-bottom: 2px solid yellow;
 }
-.an-span-wrapper[category='context']:hover {
+.an-span-wrapper:hover {
   background: yellow;
-  cursor: pointer;
-}
-
-.an-span-wrapper[category='background'] {
-  z-index: 9999999;
-  border-bottom: 2px solid pink;
-}
-.an-span-wrapper[category='background']:hover {
-  background: pink;
   cursor: pointer;
 }
 
@@ -38,12 +28,28 @@
   text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
 }
 
+.ghost-text {
+  height: 50px;
+  padding: 5px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-style: italic;
+  font-size: 20px;
+  border-radius: 10px;
+  background-color: red;
+  color: white;
+  position: absolute;
+  top:100px;
+  left: 0;
+  z-index: 10000000;
+}
+
 
 /* CSS Styling for each of the popup elements */
 an-popup {
-  background-color: black;
-  color: white;
-  font-size: 13px;
+  background-color: white;
+  border: 2px solid red;
+  border-radius: 10px;
+  color: black;
   padding: 5px;
   width: 250px;
   display: none;
@@ -52,13 +58,8 @@ an-popup {
   cursor: pointer;
 }
 
-an-popup[category="context"] {
-  background: pink;
-}
-
 .popup-title {
-  width: 100%;
-  font-size: 20px;
+  font-size: 15px;
   border-bottom: 2px solid white;
   text-align: left;
   padding: 0;
@@ -73,10 +74,22 @@ an-popup[category="context"] {
 }
 
 .popup-text {
-  text-align: left;
+  text-align: center;
   font-size: 15px;
   color: white;
   padding: 5px;
+}
+
+.popup-description {
+
+}
+
+.popup-link {
+
+}
+
+.popup-quote {
+
 }
 
 an-popup[data-show] {

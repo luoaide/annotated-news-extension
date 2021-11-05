@@ -8,61 +8,71 @@
 // of specific pages.
 
 function sendRequest(currentURL, studyPin, currentTAB) {
-    $.ajax({
-        // populate with the correct address to the Flask App Web Server
-        url: "https://www.annotatednews.com/loadExtension",
-        type: "POST",
-        data: {
-            user_current_url: currentURL,
-            study_pin: studyPin
-        },
-        dataType: "json",
-        //returns dataObject
-        success: function(dataObject) {
-            //DO SOMETHING WITH THE RETURNED JSON OUTPUT
-            //Return it via post message to modify.js
-            chrome.tabs.sendMessage(currentTAB, {
-                "type": "server_output",
-                "command": "incoming_data",
-                "payload": JSON.stringify(dataObject)
-            }, function(response){
-              //After all the elements have been modified and added to the page... load Active.JS.
-              if(response.responseCode == "success") {
-                //consider just throwing this content script in at the beginning, which I think I do anyway... might be redundant.
-                chrome.tabs.executeScript(currentTAB, {
-                  file: 'content/active.js'
-                });
-              }
-              true;
-            });
+  let url = "https://www.annotatednews.com/loadExtension";
+  var xhr = new XMLHttpRequest();
+  xhr.open("POST", url);
+  xhr.setRequestHeader("Content-Type", "application/json");
+
+  xhr.onreadystatechange = function() {
+    if (xhr.readyState === 4) {
+      //DO SOMETHING WITH THE RETURNED JSON OUTPUT
+      //Return it via post message to modify.js
+      chrome.tabs.sendMessage(currentTAB, {
+        "type": "server_output",
+        "command": "incoming_data",
+        "payload": xhr.responseText
+      }, function(response) {
+        //After all the elements have been modified and added to the page... load Active.JS.
+        if (response.responseCode == "success") {
+          //consider just throwing this content script in at the beginning, which I think I do anyway... might be redundant.
+          chrome.tabs.executeScript(currentTAB, {
+            file: 'content/active.js'
+          });
         }
-    });
+        return true;
+      });
+    }
+  }
+
+  var json_string = JSON.stringify({
+    "user_current_url": currentURL,
+    "study_pin": studyPin
+  });
+
+  xhr.send(json_string);
 }
 
-chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
-    switch( request.type ) {
-        case "server_request":
-            switch( request.command ){
-                case "turn_on":
-                    let thisURL = request.url;
-                    let thisUSER = "1";
-                    let thisTAB = sender.tab.id;
-                    console.log(thisURL);
-                    sendRequest(thisURL, thisUSER, thisTAB);
-                    sendResponse({"responseCode": "success"});
-                    break;
-                case "turn_off":
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        "type": "server_output",
-                        "command": "unload_extension"
-                    });
-                    sendResponse( {"responseCode": "success"} );
-            }
-    }
-    return true;
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  switch (request.type) {
+    case "server_request":
+      switch (request.command) {
+        case "turn_on":
+          let thisURL = request.url;
+          let thisTAB = sender.tab.id;
+          chrome.storage.local.get('studyPin', function(result){
+              let thisUSER = result.studyPin;
+              console.log(thisURL);
+              console.log(thisUSER);
+              sendRequest(thisURL, thisUSER, thisTAB);
+          });
+          sendResponse({
+            "responseCode": "success"
+          });
+          break;
+        case "turn_off":
+          chrome.tabs.sendMessage(sender.tab.id, {
+            "type": "server_output",
+            "command": "unload_extension"
+          });
+          sendResponse({
+            "responseCode": "success"
+          });
+      }
+  }
+  return true;
 });
 
 
 chrome.runtime.onInstalled.addListener(function() {
-    //settup the extension on install.
+  //settup the extension on install.
 });

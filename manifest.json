@@ -1,7 +1,7 @@
 {
     "name": "Annotated News",
     "manifest_version": 2,
-    "version": "0.1",
+    "version": "1.0",
 
     "description": "For the curious.",
 
@@ -21,14 +21,16 @@
 
     "web_accessible_resources": ["frame/frame.html", "frame/frame.css", "frame/frame.js", "content/active.js"],
 
+    "content_security_policy": "script-src https://platform.twitter.com/widgets.js 'self'; object-src 'self'",
+
     "browser_action": {
         "default_popup": "popup/popup.html"
     },
 
     "icons": {
-        "16": "images/logo.PNG",
-        "32": "images/logo.PNG",
-        "48": "images/logo.PNG",
-        "128": "images/logo.PNG"
+        "16": "images/logo2.PNG",
+        "32": "images/logo2.PNG",
+        "48": "images/logo2.PNG",
+        "128": "images/logo2.PNG"
     }
 }
