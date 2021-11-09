@@ -98,6 +98,16 @@
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 
+#noAnnotationData {
+  padding: 10px;
+  background-color: red;
+  color: white;
+  font-size: 30px;
+  font-family: "Cheltenham";
+  border-radius: 10px;
+  margin: 20px;
+}
+
 #arrows {
   font-size: 30px;
   width: 15%;

@@ -3,11 +3,8 @@
 
 #annotatednews-root {
   /* height and top/bottom should be handled by active.js */
-  /* height: 100px !important; */
-  /* bottom: 0; */
   width: 100% !important;
   border-top: 2px solid red;
-  /* left: 25% !important; */
   position: fixed !important;
   text-align: center !important;
   overflow: hidden;
@@ -43,7 +40,7 @@
   background-color: red;
   color: white;
   position: absolute;
-  top:100px;
+  top;
   left: 0;
   z-index: 10000000;
 }
@@ -51,11 +48,11 @@
 
 /* CSS Styling for each of the popup elements */
 an-popup {
-  background-color: rgba(255, 255, 255, 1);
+  background-color: red;
   border: 2px solid red;
   border-radius: 10px;
-  color: black;
   padding: 5px;
+  padding-bottom: 10px;
   width: 250px;
   display: none;
   z-index: 10001;
@@ -63,43 +60,73 @@ an-popup {
   cursor: pointer;
   white-space: normal;
   overflow: scroll;
+  text-align: center !important;
 }
 an-popup::-webkit-scrollbar {
   display: none;
 }
 
 .popup-title {
-  font-size: 15px;
-  border-bottom: 2px solid black;
-  text-align: center;
-  padding: 0;
-  color: black;
+  font-size: 20px !important;
+  margin: 0 !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  text-align: center !important;
+  padding: 0 !important;
+  color: white !important;
+  border-bottom: 1px solid white !important;
 }
 
-.popup-line {
-  height: 2px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+.popup-body {
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
 }
 
-.popup-text {
-  text-align: center;
-  font-size: 15px;
-  color: white;
-  padding: 5px;
+.popup-content {
+  border: 2px solid white !important;
+  margin: 5px !important;
+  padding-bottom: 10px !important;
+  padding: 2px !important;
+  border-radius: 5px !important;
 }
 
 .popup-description {
-
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
 }
 
 .popup-link {
-
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: red !important;
+  background-color: white !important;
+  border-radius: 5px !important;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .popup-quote {
-
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
+}
+.pill {
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  color: red !important;
+  background-color: white !important;
+  height: 15px !important;
+  padding: 2px !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  /* display: inline-block; inline-block would allow (if used) the div to stretch its width to the width of the content...makes it centered and full though...not ideal */
 }
 
 an-popup[data-show] {
@@ -115,7 +142,7 @@ an-popup[data-show] {
 
 .popup-arrow {
   visibility: hidden;
-  /* background-color: red; */
+  background-color: red;
 }
 
 .popup-arrow::before {

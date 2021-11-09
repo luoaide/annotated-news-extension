@@ -14,10 +14,12 @@ function setPanel(inputId, category) {
   if (panel.length !== 0) {
     // display the correct panel
     panel.css("display", "inline");
+    $("#noAnnotationData").hide();
     // update preview text
     $("#preview-text").text(panel.find(".panel-preview").text());
     // $("#explainer-text").text(); can change explainer text too
   } else {
+    $("#noAnnotationData").show();
     $("#preview-text").text("Click text for a popup annotation.");
     $("#explainer-text").text();
   }
@@ -163,7 +165,7 @@ function addPanel(annot) {
     let perHeader = document.createElement('p');
     perHeader.setAttribute('class', 'per-header');
     perHeader.appendChild(perPill);
-    perHeader.textContent = content[i]["perspective"];
+    perHeader.innerHTML += content[i]["perspective"];
     perspective.appendChild(perHeader);
 
     if(content[i]["content-type"] == "link") {
@@ -176,7 +178,7 @@ function addPanel(annot) {
       link.setAttribute('class', 'per-link');
       link.setAttribute("href", content[i]['url']);
       link.setAttribute("target", "_blank");
-      link.textContent = content[i]['url'];
+      link.textContent = content[i]['source'];
       perspective.appendChild(link);
 
     } else if(content[i]["content-type"] == "quote") {

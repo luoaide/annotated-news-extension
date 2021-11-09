@@ -33,16 +33,16 @@ function addPopup(annot) {
   popup.setAttribute('role', 'popup');
   popup.setAttribute('linkedid', annot['unique-id']);
 
+  let perPill = document.createElement('span');
+  perPill.setAttribute('class', 'pill');
+  perPill.textContent = "Annotation";
+
   //add a title
   let title = document.createElement('p');
   title.setAttribute('class', 'popup-title');
   title.textContent = annot['title'];
+  popup.appendChild(perPill);
   popup.appendChild(title);
-
-  //add line
-  let line = document.createElement('div');
-  line.setAttribute('class', 'popup-line');
-  popup.appendChild(line);
 
   //add text body
   let text = document.createElement('p');
@@ -51,65 +51,70 @@ function addPopup(annot) {
   popup.appendChild(text);
 
   //add content
-  var content = annot["content"];
-  for(var i = 0; i<content.length; i++) {
-    if(content[i]["content-type"] == "link") {
+  var contentDict = annot["content"];
+  for(var i = 0; i<contentDict.length; i++) {
+    var content = document.createElement("div");
+    content.setAttribute("class", "popup-content");
+
+    if(contentDict[i]["content-type"] == "link") {
       var description = document.createElement('div');
       description.setAttribute('class', 'popup-description');
-      description.textContent = content[i]['text'];
-      popup.appendChild(description);
+      description.textContent = contentDict[i]['text'];
+      content.appendChild(description);
 
       var link = document.createElement('a');
       link.setAttribute('class', 'popup-link');
-      link.setAttribute("href", content[i]['url']);
+      link.setAttribute("href", contentDict[i]['url']);
       link.setAttribute("target", "_blank");
-      link.textContent = content[i]['url'];
-      popup.appendChild(link);
+      link.textContent = contentDict[i]['source'];
+      content.appendChild(link);
 
-    } else if(content[i]["content-type"] == "quote") {
+    } else if(contentDict[i]["content-type"] == "quote") {
       var quote = document.createElement('div');
       quote.setAttribute('class', 'popup-quote');
-      popup.appendChild(quote);
+      content.appendChild(quote);
       if(!NO_ATTR_ACTIVE) {
         var string = "Quote from ";
         var attr = document.createElement('a');
         attr.setAttribute('class', 'popup-link');
         attr.setAttribute("target", "_blank");
-        attr.textContent = content[i]['source'];
+        attr.textContent = contentDict[i]['source'];
         quote.innerHTML = string;
         quote.innerHTML += attr;
         quote.innerHTML += ": ";
       }
-      quote.innerHTML += content[i]['text'];
+      quote.innerHTML += contentDict[i]['text'];
 
-    } else if(content[i]["content-type"] == "webcontent") {
+    } else if(contentDict[i]["content-type"] == "webcontent") {
       var description = document.createElement('div');
       description.setAttribute('class', 'popup-description');
-      description.textContent = content[i]['text'];
-      popup.appendChild(description);
+      description.textContent = contentDict[i]['text'];
+      content.appendChild(description);
 
       var webframe = document.createElement('iframe');
       webframe.setAttribute('class', 'popup-iframe');
-      webframe.setAttribute('src', content[i]['url']);
-      popup.appendChild(webframe);
+      webframe.setAttribute('src', contentDict[i]['url']);
+      content.appendChild(webframe);
 
-    } else if(content[i]["content-type"] == "file") {
+    } else if(contentDict[i]["content-type"] == "file") {
       var description = document.createElement('div');
       description.setAttribute('class', 'popup-description');
-      description.textContent = content[i]['text'];
-      popup.appendChild(description);
+      description.textContent = contentDict[i]['text'];
+      content.appendChild(description);
 
       var link = document.createElement('a');
       link.setAttribute('class', 'popup-link');
-      link.setAttribute("href", content[i]['path']);
+      link.setAttribute("href", contentDict[i]['path']);
       link.setAttribute("target", "_blank");
       link.textContent = "View File";
-      popup.appendChild(link);
+      content.appendChild(link);
 
     } else {
       // error pass for now.
       console.log("annotatednews/modify.js tried to load an unsupported content-type into a popup annotation.");
     }
+
+    popup.appendChild(content);
   }
 
   //add arrow
@@ -118,8 +123,9 @@ function addPopup(annot) {
   arrow.setAttribute('data-popper-arrow', '');
   popup.appendChild(arrow);
 
-  let span = $("#" + annot['unique-id']);
-  span.closest("div").append(popup);
+  // let span = $("#" + annot['unique-id']);
+  // span.closest("div").append(popup);
+  document.body.appendChild(popup);
 }
 
 function addPanel(annot) {
@@ -156,11 +162,11 @@ function linkData(index) {
     // Ghost elements have absolute positioning relative to the page and float on the screen.
     // They can be interacted with the same as traditional "key text"
     let ghostElement = document.createElement("div");
-    ghostElement.setAttribute("class", "ghost-text");
+    ghostElement.setAttribute("class", "ghost-text an-span-wrapper");
     ghostElement.setAttribute('linkedid', annot['unique-id']);
     ghostElement.setAttribute('offset', annot['ABS_offset']);
+    ghostElement.style.top = annot['ABS_offset'];
     ghostElement.textContent = "Annotation: hover over me for information.";
-    console.log("added ghost element");
     document.body.append(ghostElement);
   } else {
     findAndReplaceDOMText(document.body, {
