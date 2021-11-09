@@ -24,10 +24,35 @@ function sendRequest(currentURL, studyPin, currentTAB) {
       }, function(response) {
         //After all the elements have been modified and added to the page... load Active.JS.
         if (response.responseCode == "success") {
-          //consider just throwing this content script in at the beginning, which I think I do anyway... might be redundant.
+          // adds active.js to the context in its own "isolated world"
           chrome.tabs.executeScript(currentTAB, {
             file: 'content/active.js'
           });
+
+          // UPDATE THE STUDY BACKEND HERE... BUT BE CAREFUL NOT TO INCREMENT EVERY SINGLE TIME (handled by server)
+          // Send a post request to the Server to increment Progress.
+          var siteURL = response.url;
+          var xhrURL = "";
+          if(siteURL == "https://www.huffpost.com/entry/georgia-election-trump-voter-fraud-claims_n_5ff36b73c5b61817a538bd20" || siteURL == "https://www.breitbart.com/politics/2020/12/17/fraud-happened-sen-rand-paul-says-the-election-in-many-ways-was-stolen/") {
+            xhrURL = "https://www.annotatednews.com/readArticle";
+          } else if (siteURL == "https://twitter.com/jaketapper/status/1400532544555307009" || siteURL == "https://twitter.com/HawleyMO/status/1344307458085412867") {
+            xhrURL = "https://www.annotatednews.com/readSocial";
+          } else {
+            // do nothing
+            xhrURL = "nothing";
+          }
+          console.log(xhrURL);
+          if(xhrURL != "nothing") {
+            chrome.storage.local.get('cNumber', function(result){
+              var xhrTwo = new XMLHttpRequest();
+              xhrTwo.open("POST", xhrURL);
+              xhrTwo.setRequestHeader("Content-Type", "application/json");
+              var updateCommandTwo = JSON.stringify({
+                'c_number': result.cNumber
+              });
+              xhrTwo.send(updateCommandTwo);
+            });
+          }
         }
         return true;
       });

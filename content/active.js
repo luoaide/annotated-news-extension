@@ -1,5 +1,10 @@
 //https://stackoverflow.com/questions/4698118/google-chrome-extensions-how-to-include-jquery-in-programmatically-injected-con
 const { createPopper } = Popper;
+//settup
+let panelState = 0;
+
+//Set the frame content to be correct based on current view...
+updateCurrentView();
 
 //HIDE AND SHOW FUNCTIONS FOR THE POPUPS
 function show(linkedid) {
@@ -28,46 +33,18 @@ function show(linkedid) {
   }
 }
 
-//settup
-let panelState = 0; // may not actually need.
+function hideCurrent(linkedid) {
+  const popup = document.querySelector("[linkedid='" + linkedid + "']");
+  popup.removeAttribute('data-show');
+}
 
-let height = $(window).height();
-$('#annotatednews-root').css({
-  "height": ((0.6*height) + 50) + "px", // we add fifty to account for the "closeArrow" bar above the panel when open
-  "top": (height - 100) + "px"
-});
-
-//Set the frame content to be correct based on current view...
-updateCurrentView();
-
-//SECTION 1
-//BASED ON CATEGORY, STYLE THE .an-span-wrapper span elements and animate underline effects
-console.log("active.js reporting present");
-
-
-//SECTION 2
-//SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
-// https://stackoverflow.com/questions/11190930/jquery-not-recognizing-classes-added-to-page-dynamically
-// Tricky stuff needed becasue the element is added during the lifetime of the page...
-$(document).on('click', '.an-span-wrapper', function() {
-  //See if it is a panel or Popup:
-  if($(this).attr("type") == "counterpoint") {
-    //If it's a panel (panel = counterpoint):
-    updateFrame($(this));
-    openDrawer();
-  } else {
-    //If it's a popup:
-    console.log("display popper");
-    let linkedId = $(this).attr('id');
-    show(linkedId);
-  }
-});
-
-
-window.addEventListener('scroll', function () {
-  //updateCurrentView();
-}, false);
-
+function resize() {
+  let height = $(window).height();
+  $('#annotatednews-root').css({
+    "height": ((0.6*height) + 50) + "px", // we add fifty to account for the "closeArrow" bar above the panel when open
+    "top": (height - 100) + "px"
+  });
+}
 
 function openDrawer() {
   panelState = 1;
@@ -108,6 +85,95 @@ function scrollDown() {
   updateFrame(nextSpan);
 }
 
+
+function updateFrame(spanElement){
+  $('.an-current-span').removeClass('an-current-span');
+  spanElement.addClass('an-current-span');
+  let key = $('.an-current-span').first().attr('id');
+  let iframe = document.getElementById('annotatednews-root');
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "update_current",
+    "curid": key
+  }, "*");
+}
+
+
+function updateCurrentView() {
+  let mid = $(window).height()/5;
+  let currentSpan =  $(".an-span-wrapper").first();
+  let minDist = 90000000;
+  $(".an-span-wrapper").each(function() {
+    //This logic should be upgraded, but for now it is operational.
+    let dist = Math.abs($( this )[0].getBoundingClientRect().top - mid)
+    if(dist < minDist) {
+      currentSpan = $( this );
+      minDist = dist;
+    }
+  });
+  if(!currentSpan.hasClass("an-current-span")) {
+    updateFrame(currentSpan);
+  }
+}
+
+//SECTION 2
+//SET EVENT LISTENERS FOR ALL POPUPS AND HIDE/SHOW APPROPRIATELY.
+// https://stackoverflow.com/questions/11190930/jquery-not-recognizing-classes-added-to-page-dynamically
+// Tricky stuff needed becasue the element is added during the lifetime of the page...
+$(document).on('click', '.an-span-wrapper', function() {
+  //See if it is a panel or Popup:
+  if($(this).attr("type") == "counterpoint") {
+    //If it's a panel (panel = counterpoint):
+    let iframe = document.getElementById('annotatednews-root');
+    iframe.contentWindow.postMessage({
+      "type": "to_frame",
+      "command": "open_panel"
+    }, "*");
+    updateFrame($(this));
+    // frame.js will send a message back here to actually open the drawer.
+  } else {
+    //If it's a popup:
+    let linkedId = $(this).attr('id');
+    show(linkedId);
+  }
+});
+
+window.resize(function(){
+  resize();
+});
+
+window.addEventListener('scroll', function () {
+  // only update the current view if the panel is not open...
+  if(panelState == 0) {
+    updateCurrentView();
+  }
+}, false);
+
+window.addEventListener('click', function (elem) {
+  //Find the mouse position:
+  // var e = window.event;
+  // var posX = e.clientX;
+  // var posY = e.clientY;
+  // console.log("x: " + posX + " y: " + posY);
+  //If the panel is open, close the panel.
+  if(panelState == 1){
+    let iframe = document.getElementById('annotatednews-root');
+    iframe.contentWindow.postMessage({
+      "type": "to_frame",
+      "command": "close_panel"
+    }, "*");
+  }
+
+  //If a popup is displayed: hide it.
+  if(!$(elem.target).hasClass("an-span-wrapper")) {
+    let selected = document.querySelector("[data-show='']");
+    if(selected != null) {
+      let linkedId = selected.getAttribute('linkedid');
+      hideCurrent(linkedId);
+    }
+  }
+});
+
 window.addEventListener("message", function(event) {
     let request = event.data;
     switch( request.type ) {
@@ -139,35 +205,3 @@ window.addEventListener("message", function(event) {
     }
     return true;
 });
-
-
-function updateFrame(spanElement){
-  $('.an-current-span').removeClass('an-current-span');
-  spanElement.addClass('an-current-span');
-  let key = $('.an-current-span').first().attr('id');
-  let iframe = document.getElementById('annotatednews-root');
-  iframe.contentWindow.postMessage({
-    "type": "to_frame",
-    "command": "update_current",
-    "curid": key
-  }, "*");
-}
-
-
-function updateCurrentView() {
-  let mid = $(window).height()/4;
-  let currentSpan =  $(".an-span-wrapper").first();
-  let minDist = 90000000;
-  $(".an-span-wrapper").each(function() {
-    //This logic should be upgraded, but for now it is operational.
-    let dist = Math.abs($( this )[0].getBoundingClientRect().top - mid)
-    if(dist < minDist) {
-      currentSpan = $( this );
-      minDist = dist;
-    }
-  });
-  if(!currentSpan.hasClass("an-current-span")) {
-    updateFrame(currentSpan);
-  }
-
-}

@@ -56,7 +56,7 @@ $(document).ready(function(){
           $("#status").text(response.output);
 
           // Send a post request to the Server to increment Progress.
-          var url = "https://www.annotatednews.com/finishedSurvey";
+          var url = "https://www.annotatednews.com/syncedExtension";
           var xhr = new XMLHttpRequest();
           xhr.open("POST", url);
           xhr.setRequestHeader("Content-Type", "application/json");
@@ -64,6 +64,7 @@ $(document).ready(function(){
             'c_number': cNum
           });
           xhr.send(updateCommand);
+          console.log("sent SYNC update");
         } else {
           $("#syncPanel").css("display", "None");
           $("#responsePanel").css("display", "inline");

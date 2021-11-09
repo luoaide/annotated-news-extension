@@ -23,6 +23,7 @@ function addPopup(annot) {
       {
         "content-type": "link",
         "text": "Facebook post of the Alledged Fraud:",
+        "source": "Facebook",
         "url": "https://www.facebook.com/restorationpac/videos/1002133710271567/?__xts__[0]=68.ARDNP9n4TakNeD99chaJc2gDGs7i64Qr3MLQ3V9zBNbsBfRU-FWycMk81D9FhYFXdYbBB0_2OjtcYqb9F6d-W8wrvpTBVzHc2YPdq1oUSrvg277ruZTspwqos-I2jB-cyC_meoUt4_buEl7w9lAg-o_FybSsRJ_ZhQD8dfDvnyTMdR2xA-yqHLyQ8ro0LvT6GtazvFPnLgYpjVs4NUbYtRg8ZOivfyBBzYRMlPPlA1x47VBW2hJrx7l8MwzzPzMc81NIV7vSDRMTZuDEqcQnJXBsh-suD92g9zL9j-oUsLdCU0StkVgRiRge2KQsj0TSsRG1WtCcowTjwcgt3A"
       }
     ]
@@ -33,7 +34,7 @@ function addPopup(annot) {
   popup.setAttribute('linkedid', annot['unique-id']);
 
   //add a title
-  let title = document.createElement('h2');
+  let title = document.createElement('p');
   title.setAttribute('class', 'popup-title');
   title.textContent = annot['title'];
   popup.appendChild(title);
@@ -44,7 +45,7 @@ function addPopup(annot) {
   popup.appendChild(line);
 
   //add text body
-  let text = document.createElement('div');
+  let text = document.createElement('p');
   text.setAttribute('class', 'popup-body');
   text.textContent = annot['text'];
   popup.appendChild(text);
@@ -52,33 +53,62 @@ function addPopup(annot) {
   //add content
   var content = annot["content"];
   for(var i = 0; i<content.length; i++) {
-    if(content[i] == "link") {
-      let description = document.createElement('div');
-      let link = document.createElement('div');
+    if(content[i]["content-type"] == "link") {
+      var description = document.createElement('div');
       description.setAttribute('class', 'popup-description');
-      link.setAttribute('class', 'popup-link');
       description.textContent = content[i]['text'];
-      link.textContent = content[i]['url'];
       popup.appendChild(description);
+
+      var link = document.createElement('a');
+      link.setAttribute('class', 'popup-link');
+      link.setAttribute("href", content[i]['url']);
+      link.setAttribute("target", "_blank");
+      link.textContent = content[i]['url'];
       popup.appendChild(link);
-    } else if(content[i] == "quote") {
-      let quote = document.createElement('div');
+
+    } else if(content[i]["content-type"] == "quote") {
+      var quote = document.createElement('div');
       quote.setAttribute('class', 'popup-quote');
-      quote.textContent = content[i]['text'];
       popup.appendChild(quote);
-      chrome.storage.local.get('is_no_attr', function(result){
-        var isNoAttr = result.is_no_attr;
-        if(!isNoAttr) { //pardon the double negative... if its no_attr: just don't add the link.. if its attr, add the link.
-          let link = document.createElement('div');
-          link.setAttribute('class', 'popup-link');
-          link.textContent = content[i]['url'];
-          popup.appendChild(link);
-        }
-      });
-    } else if(content[i] == "webcontent") {
+      if(!NO_ATTR_ACTIVE) {
+        var string = "Quote from ";
+        var attr = document.createElement('a');
+        attr.setAttribute('class', 'popup-link');
+        attr.setAttribute("target", "_blank");
+        attr.textContent = content[i]['source'];
+        quote.innerHTML = string;
+        quote.innerHTML += attr;
+        quote.innerHTML += ": ";
+      }
+      quote.innerHTML += content[i]['text'];
+
+    } else if(content[i]["content-type"] == "webcontent") {
+      var description = document.createElement('div');
+      description.setAttribute('class', 'popup-description');
+      description.textContent = content[i]['text'];
+      popup.appendChild(description);
+
+      var webframe = document.createElement('iframe');
+      webframe.setAttribute('class', 'popup-iframe');
+      webframe.setAttribute('src', content[i]['url']);
+      popup.appendChild(webframe);
+
+    } else if(content[i]["content-type"] == "file") {
+      var description = document.createElement('div');
+      description.setAttribute('class', 'popup-description');
+      description.textContent = content[i]['text'];
+      popup.appendChild(description);
+
+      var link = document.createElement('a');
+      link.setAttribute('class', 'popup-link');
+      link.setAttribute("href", content[i]['path']);
+      link.setAttribute("target", "_blank");
+      link.textContent = "View File";
+      popup.appendChild(link);
 
     } else {
       // error pass for now.
+      console.log("annotatednews/modify.js tried to load an unsupported content-type into a popup annotation.");
     }
   }
 
@@ -88,9 +118,6 @@ function addPopup(annot) {
   arrow.setAttribute('data-popper-arrow', '');
   popup.appendChild(arrow);
 
-  //let span = document.getElementById(annot['unique-id']);
-  //span.parentElement.appendChild(popup);
-  //document.body.appendChild(popup);
   let span = $("#" + annot['unique-id']);
   span.closest("div").append(popup);
 }
@@ -121,6 +148,8 @@ function linkData(index) {
 
   //ADD POSITION CAPABILITIES.... = GHOST ELEMENT.
 
+  //!!!!!!!!!!!!!!! https://github.com/padolsey/findAndReplaceDOMText
+
   var foundElem;
   var kt = annot["key-text"];
   if(kt == "__PAGETOP__" || kt == "__ABS__") {
@@ -134,19 +163,13 @@ function linkData(index) {
     console.log("added ghost element");
     document.body.append(ghostElement);
   } else {
-    let keyElem = document.querySelectorAll("p", "div", "span")
-    keyElem.forEach(elem => {
-      if (elem.textContent.includes(annot['key-text'])) {
-        foundElem = elem;
-      }
+    findAndReplaceDOMText(document.body, {
+      find: annot['key-text'],
+      wrap: "span",
+      wrapClass: "an-span-wrapper",
+      wrapID: annot['unique-id'],
+      wrapType: annot['type']
     });
-    if (foundElem == null) {
-      console.log("no element found matching the key text"); //IMPROVE ERROR HANDLING
-    } else {
-      let newSpan = `<span id="${annot['unique-id']}" type="${annot['type']}" class='an-span-wrapper' aria-describedby="${annot['unique-id']}">${annot['key-text']}</span>`;
-      let newElemContents = foundElem.textContent.replace(annot['key-text'], newSpan);
-      foundElem.innerHTML = newElemContents;
-    }
   }
 
   if (annot['type'] == 'counterpoint') {
@@ -187,21 +210,18 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           if(curURL == syncURL) {
             let studyPin = document.getElementById("studyPin").textContent;
             let cNum = document.getElementById("userCNum").textContent;
-            let is_no_attr_active = document.getElementById("no_attr_indicator").textContent;
+            let is_no_attr_active = document.getElementById("no_attr_indicator").getAttribute("value");
             // update chrome storage to reflect that we've now synced the extension to the study page.
             chrome.storage.local.set({studyPin: studyPin}, function() {
-              console.log('extension study pin set to: ' + studyPin);
             });
-            chrome.storage.local.set({cNum: cNum}, function() {
-              console.log('extension c number set to: ' + cNum);
+            chrome.storage.local.set({cNumber: cNum}, function() {
             });
+
             if(is_no_attr_active == "true"){
               chrome.storage.local.set({is_no_attr: true}, function() {
-                console.log('extension c number set to: ' + cNum);
               });
             } else {
               chrome.storage.local.set({is_no_attr: false}, function() {
-                console.log('extension c number set to: ' + cNum);
               });
             }
 
@@ -252,12 +272,21 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           let payload = JSON.parse(request.payload);
           GLOBALSTATE = "active";
           ANNOTATIONS = payload.annotations;
-          if(request.is_no_attr_active) {
-            NO_ATTR_ACTIVE = true;
-          }
+          chrome.storage.local.get('is_no_attr', function(result){
+            var isNoAttr = result.is_no_attr;
+            if(!isNoAttr) { //pardon the double negative... if its no_attr: just don't add the link.. if its attr, add the link.
+              NO_ATTR_ACTIVE = true;
+            } else {
+              NO_ATTR_ACTIVE = false;
+            }
+          });
+
           modifyHTML();
+          let thisURL = window.location.href; // used to check the url in background.js to see if we should increment progress for turning on the extension
+          // for a given article.
           sendResponse({
-            "responseCode": "success"
+            "responseCode": "success",
+            "url": thisURL
           });
           break;
 

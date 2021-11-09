@@ -17,15 +17,20 @@
 .an-span-wrapper {
   z-index: 9999999;
   border-bottom: 2px solid yellow;
+  /* background-color: yellow; */
 }
 .an-span-wrapper:hover {
   background: yellow;
+  /* color: white; */
   cursor: pointer;
 }
 
 .an-current-span {
   font-weight: bold;
   text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+  /* background: red;
+  color: white; */
+  cursor: pointer;
 }
 
 .ghost-text {
@@ -46,7 +51,7 @@
 
 /* CSS Styling for each of the popup elements */
 an-popup {
-  background-color: white;
+  background-color: rgba(255, 255, 255, 1);
   border: 2px solid red;
   border-radius: 10px;
   color: black;
@@ -56,14 +61,19 @@ an-popup {
   z-index: 10001;
   position: absolute;
   cursor: pointer;
+  white-space: normal;
+  overflow: scroll;
+}
+an-popup::-webkit-scrollbar {
+  display: none;
 }
 
 .popup-title {
   font-size: 15px;
-  border-bottom: 2px solid white;
-  text-align: left;
+  border-bottom: 2px solid black;
+  text-align: center;
   padding: 0;
-  color: white;
+  color: black;
 }
 
 .popup-line {
@@ -99,13 +109,13 @@ an-popup[data-show] {
 .popup-arrow,
 .popup-arrow::before {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background: inherit;
+  width: 20px;
+  height: 20px;
 }
 
 .popup-arrow {
   visibility: hidden;
+  /* background-color: red; */
 }
 
 .popup-arrow::before {

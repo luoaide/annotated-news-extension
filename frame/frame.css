@@ -150,6 +150,9 @@
 .panel-text {
 
 }
+.panel-preview {
+  display: none;
+}
 .perspective-bin {
   margin-top: 5px;
   overflow: auto;
