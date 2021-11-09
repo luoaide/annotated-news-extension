@@ -100,15 +100,19 @@ an-popup::-webkit-scrollbar {
   padding: 5px !important;
 }
 
+.popup-button {
+  text-align: center !important;
+  color: red !important;
+  background-color: white !important;
+  border-radius: 5px !important;
+  padding: 10px;
+}
+
 .popup-link {
   text-align: center !important;
   font-family: "Segoe UI", Tahoma, sans-serif !important;
   font-size: 15px !important;
   color: red !important;
-  background-color: white !important;
-  border-radius: 5px !important;
-  padding-left: 10px;
-  padding-right: 10px;
 }
 
 .popup-quote {

@@ -193,6 +193,7 @@
   background-color: red;
   height: 15px;
   padding: 2px;
+  margin: 5px;
   /* display: inline-block; inline-block would allow (if used) the div to stretch its width to the width of the content...makes it centered and full though...not ideal */
 }
 .per-header {
@@ -220,7 +221,20 @@
   font-family: "Segoe UI", Tahoma, sans-serif;
 }
 .per-source {
-
+  font-size: 15px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-link {
+  font-size: 15px;
+  color: white;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-button {
+  background-color: red;
+  margin-top: 10px;
+  padding: 5px;
+  color: white;
+  border-radius: 5px;
 }
 .per-webcontent {
 

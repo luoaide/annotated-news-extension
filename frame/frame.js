@@ -45,6 +45,7 @@ function openPanel() {
     "type": "frame_output",
     "command": "open_drawer",
   }, "*");
+  resize();
 }
 
 function closePanel() {
@@ -107,6 +108,13 @@ $(document).ready(function() {
     }, "*");
   });
 
+  $("a").click(function(el) {
+    window.parent.postMessage({
+      "type": "frame_output",
+      "command": "go_to_link",
+      "href": el.href
+    }, "*");
+  });
 
 
 });
@@ -174,12 +182,15 @@ function addPanel(annot) {
       perText.textContent = content[i]["text"]
       perspective.appendChild(perText);
 
+      var button = document.createElement("div");
+      button.setAttribute('class', 'per-button');
       var link = document.createElement('a');
       link.setAttribute('class', 'per-link');
       link.setAttribute("href", content[i]['url']);
       link.setAttribute("target", "_blank");
       link.textContent = content[i]['source'];
-      perspective.appendChild(link);
+      button.appendChild(link);
+      perspective.appendChild(button);
 
     } else if(content[i]["content-type"] == "quote") {
       var quote = document.createElement('p');

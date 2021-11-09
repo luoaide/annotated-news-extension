@@ -62,12 +62,15 @@ function addPopup(annot) {
       description.textContent = contentDict[i]['text'];
       content.appendChild(description);
 
+      var button = document.createElement("div");
+      button.setAttribute('class', 'popup-button');
       var link = document.createElement('a');
       link.setAttribute('class', 'popup-link');
       link.setAttribute("href", contentDict[i]['url']);
       link.setAttribute("target", "_blank");
       link.textContent = contentDict[i]['source'];
-      content.appendChild(link);
+      button.appendChild(link);
+      content.appendChild(button);
 
     } else if(contentDict[i]["content-type"] == "quote") {
       var quote = document.createElement('div');

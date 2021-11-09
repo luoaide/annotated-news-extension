@@ -201,6 +201,10 @@ window.addEventListener("message", function(event) {
                 //scroll down to the next annotation
                 case "scroll_down":
                     scrollDown();
+                    break;
+
+                case "go_to_link":
+                    window.open(request.href, "_blank");
             }
     }
     return true;
