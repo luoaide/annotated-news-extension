@@ -1,6 +1,7 @@
 let NO_ATTR_ACTIVE = false;
+let CURRENT_PANEL = "none";
 
-function setPanel(inputId, category) {
+function setPanel(inputId) {
   //Make changes to the Frame based on the "annotation" currently in view for the user.
   //Also update the "preview" box with the correct
   // 1) preview text
@@ -8,7 +9,7 @@ function setPanel(inputId, category) {
 
   //set all the panels to display: none.
   $('.an-panel').css("display", "none");
-
+  CURRENT_PANEL = inputId;
   //check to see if there is a valid panel with linkedid == inputId
   let panel = $("div[linkedid='" + inputId + "']");
   if (panel.length !== 0) {
@@ -46,6 +47,14 @@ function openPanel() {
     "command": "open_drawer",
   }, "*");
   resize();
+  // Send a message to background.js to update the Annotation Data table on the server:
+  window.parent.postMessage({
+    "type": "frame_output",
+    "command": "update_annotation_database",
+    "annotId": CURRENT_PANEL,
+    "newOpen": 1,
+    "helpful": 0
+  }, "*");
 }
 
 function closePanel() {
@@ -92,21 +101,22 @@ $(document).ready(function() {
     }, "*");
   });
 
-  // >>> UP ARROW.   SCROLL UP
-  $("#upArrow").click(function() {
-    window.parent.postMessage({
-      "type": "frame_output",
-      "command": "scroll_up",
-    }, "*");
-  });
-
-  // >>> DOWN ARROW.   SCROLL DOWN
-  $("#upArrow").click(function() {
-    window.parent.postMessage({
-      "type": "frame_output",
-      "command": "scroll_down",
-    }, "*");
-  });
+  // AUTO SCROLLING NOT SUPPORTED:
+  // // >>> UP ARROW.   SCROLL UP
+  // $("#upArrow").click(function() {
+  //   window.parent.postMessage({
+  //     "type": "frame_output",
+  //     "command": "scroll_up",
+  //   }, "*");
+  // });
+  //
+  // // >>> DOWN ARROW.   SCROLL DOWN
+  // $("#upArrow").click(function() {
+  //   window.parent.postMessage({
+  //     "type": "frame_output",
+  //     "command": "scroll_down",
+  //   }, "*");
+  // });
 
   $("a").click(function(el) {
     window.parent.postMessage({
@@ -194,12 +204,12 @@ function addPanel(annot) {
 
     } else if(content[i]["content-type"] == "quote") {
       var quote = document.createElement('p');
-      quote.setAttribute('class', 'popup-quote');
-      popup.appendChild(quote);
+      quote.setAttribute('class', 'per-quote');
       if(!NO_ATTR_ACTIVE) {
         var string = "Quote from ";
         var attr = document.createElement('a');
-        attr.setAttribute('class', 'popup-link');
+        attr.setAttribute('class', 'attribution');
+        attr.setAttribute('href', content[i]['url']);
         attr.setAttribute("target", "_blank");
         attr.textContent = content[i]['source'];
         quote.innerHTML = string;
@@ -220,28 +230,69 @@ function addPanel(annot) {
       webframe.setAttribute('src', content[i]['url']);
       perspective.appendChild(webframe);
 
+      var button = document.createElement("div");
+      button.setAttribute('class', 'per-button');
+      var link = document.createElement('a');
+      link.setAttribute('class', 'per-link');
+      link.setAttribute("href", content[i]['url']);
+      link.setAttribute("target", "_blank");
+      link.textContent = content[i]['source'];
+      button.appendChild(link);
+      perspective.appendChild(button);
+
     } else if(content[i]["content-type"] == "file") {
-      var description = document.createElement('p');
-      description.setAttribute('class', 'per-text');
-      description.textContent = content[i]['text'];
-      perspective.appendChild(description);
+      let perText = document.createElement('p');
+      perText.setAttribute('class', 'per-text');
+      perText.textContent = content[i]["text"]
+      perspective.appendChild(perText);
+
+      var button = document.createElement("div");
+      button.setAttribute('class', 'per-button');
+      var link = document.createElement('a');
+      link.setAttribute('class', 'per-link');
+      link.setAttribute("href", content[i]['path']);
+      link.setAttribute("target", "_blank");
+      link.textContent = content[i]['source'];
+      button.appendChild(link);
+      perspective.appendChild(button);
 
       //add file.
     } else if(content[i]["content-type"] == "file-quote") {
-      // var description = document.createElement('p');
-      // description.setAttribute('class', 'per-text');
-      // description.textContent = content[i]['text'];
-      // perspective.appendChild(description);
-      //
-      // //add file.
+      var quote = document.createElement('p');
+      quote.setAttribute('class', 'per-quote');
+      if(!NO_ATTR_ACTIVE) {
+        var string = "Quote from ";
+        var attr = document.createElement('a');
+        attr.setAttribute('class', 'attribution');
+        attr.setAttribute('href', content[i]['path']);
+        attr.setAttribute("target", "_blank");
+        attr.textContent = content[i]['source'];
+        quote.innerHTML = string;
+        quote.innerHTML += attr;
+        quote.innerHTML += ": ";
+      }
+      quote.innerHTML += content[i]['text'];
+      perspective.appendChild(quote);
+
     } else if(content[i]["content-type"] == "quote-list") {
-      // only difference is that ["text"] is a list.
-      // var description = document.createElement('p');
-      // description.setAttribute('class', 'per-text');
-      // description.textContent = content[i]['text'];
-      // perspective.appendChild(description);
-      //
-      // //add file.
+      var list = content[i]['text']
+      for(var p = 0; p<list.length; p++) {
+        var quote = document.createElement('p');
+        quote.setAttribute('class', 'per-quote');
+        if(!NO_ATTR_ACTIVE) {
+          var string = "Quote from ";
+          var attr = document.createElement('a');
+          attr.setAttribute('class', 'attribution');
+          attr.setAttribute('href', content[i]['url']);
+          attr.setAttribute("target", "_blank");
+          attr.textContent = content[i]['source'];
+          quote.innerHTML = string;
+          quote.innerHTML += attr;
+          quote.innerHTML += ": ";
+        }
+        quote.innerHTML += list[p];
+        perspective.appendChild(quote);
+      }
 
     } else {
       // error pass for now.
@@ -269,7 +320,6 @@ window.addEventListener("message", function(event) {
     case "to_frame": //message to the frame
       switch (request.command) {
         case "add_panel": //message coming from modify.js
-          console.log("message recieved");
           let annot = JSON.parse(request.annotation);
           addPanel(annot);
           break;

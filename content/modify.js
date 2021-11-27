@@ -1,34 +1,11 @@
-'use strict';
-
-var GLOBALSTATE = "active";
+var GLOBALSTATE = "inactive";
 var NO_ATTR_ACTIVE = false;
 var ANNOTATIONS = {};
-
-'use strict';
 
 // modify.js interacts directly with the DOM of the current webpage. Instead of storing HTML
 // as a string, modifying, and returning, it modifies the existing DOM.
 
 function addPopup(annot) {
-  /* Example Context Popup */
-  /*
-  {
-    "type": "context",
-    "unique-id": "an-23984",
-    "key-text": "a 90-second video clip",
-    "preview": "Watch the video.",
-    "title": "Video of the Alledged Fraud",
-    "text": "Watch the video of the alledged 2020 Presidential Election Fraud with the following resource(s):",
-    "content": [
-      {
-        "content-type": "link",
-        "text": "Facebook post of the Alledged Fraud:",
-        "source": "Facebook",
-        "url": "https://www.facebook.com/restorationpac/videos/1002133710271567/?__xts__[0]=68.ARDNP9n4TakNeD99chaJc2gDGs7i64Qr3MLQ3V9zBNbsBfRU-FWycMk81D9FhYFXdYbBB0_2OjtcYqb9F6d-W8wrvpTBVzHc2YPdq1oUSrvg277ruZTspwqos-I2jB-cyC_meoUt4_buEl7w9lAg-o_FybSsRJ_ZhQD8dfDvnyTMdR2xA-yqHLyQ8ro0LvT6GtazvFPnLgYpjVs4NUbYtRg8ZOivfyBBzYRMlPPlA1x47VBW2hJrx7l8MwzzPzMc81NIV7vSDRMTZuDEqcQnJXBsh-suD92g9zL9j-oUsLdCU0StkVgRiRge2KQsj0TSsRG1WtCcowTjwcgt3A"
-      }
-    ]
-  },
-  */
   let popup = document.createElement('an-popup');
   popup.setAttribute('role', 'popup');
   popup.setAttribute('linkedid', annot['unique-id']);
@@ -99,6 +76,16 @@ function addPopup(annot) {
       webframe.setAttribute('src', contentDict[i]['url']);
       content.appendChild(webframe);
 
+      var button = document.createElement("div");
+      button.setAttribute('class', 'popup-button');
+      var link = document.createElement('a');
+      link.setAttribute('class', 'popup-link');
+      link.setAttribute("href", contentDict[i]['url']);
+      link.setAttribute("target", "_blank");
+      link.textContent = contentDict[i]['source'];
+      button.appendChild(link);
+      content.appendChild(button);
+
     } else if(contentDict[i]["content-type"] == "file") {
       var description = document.createElement('div');
       description.setAttribute('class', 'popup-description');
@@ -161,15 +148,16 @@ function linkData(index) {
 
   var foundElem;
   var kt = annot["key-text"];
-  if(kt == "__PAGETOP__" || kt == "__ABS__") {
-    // Ghost elements have absolute positioning relative to the page and float on the screen.
+  if(kt == "__ABS__") {
+    // Ghost elements have fixed positioning relative to the page and float on the screen.
     // They can be interacted with the same as traditional "key text"
     let ghostElement = document.createElement("div");
     ghostElement.setAttribute("class", "ghost-text an-span-wrapper");
-    ghostElement.setAttribute('linkedid', annot['unique-id']);
+    ghostElement.setAttribute('id', annot['unique-id']);
     ghostElement.setAttribute('offset', annot['ABS_offset']);
-    ghostElement.style.top = annot['ABS_offset'];
-    ghostElement.textContent = "Annotation: hover over me for information.";
+    ghostElement.setAttribute('type', annot['type']);
+    ghostElement.style.top = annot['ABS_offset'] + "px";
+    ghostElement.textContent = "Annotation: click me for information.";
     document.body.append(ghostElement);
   } else {
     findAndReplaceDOMText(document.body, {
@@ -208,11 +196,17 @@ function modifyHTML() {
 
 
 //Messaging communicates with the backend (background.js) to provide modify.js with an exportable data model.
-//Messaging.js contains state information about the extension on the client side.
+//modify.js contains state information about the extension on the client side.
 chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
   switch (request.type) {
     case "user_input":
       switch (request.command) {
+        // Used to attempt to prevent multiple instances of the modify.js from being loaded...
+        case "is_present":
+          sendResponse({
+            "status": "active"
+          });
+          break;
         case "sync":
           let curURL = window.location.href;
           let syncURL = "https://www.annotatednews.com/instructions";
@@ -221,17 +215,13 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             let cNum = document.getElementById("userCNum").textContent;
             let is_no_attr_active = document.getElementById("no_attr_indicator").getAttribute("value");
             // update chrome storage to reflect that we've now synced the extension to the study page.
-            chrome.storage.local.set({studyPin: studyPin}, function() {
-            });
-            chrome.storage.local.set({cNumber: cNum}, function() {
-            });
+            chrome.storage.local.set({studyPin: studyPin}, () => {});
+            chrome.storage.local.set({cNumber: cNum}, () => {});
 
             if(is_no_attr_active == "true"){
-              chrome.storage.local.set({is_no_attr: true}, function() {
-              });
+              chrome.storage.local.set({is_no_attr: true}, () => {});
             } else {
-              chrome.storage.local.set({is_no_attr: false}, function() {
-              });
+              chrome.storage.local.set({is_no_attr: false}, () => {});
             }
 
             sendResponse({
@@ -259,13 +249,12 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           });
           break;
         case "turn_off":
-          chrome.runtime.sendMessage({
-            "type": "server_request",
-            "command": "turn_off"
-          });
+          GLOBALSTATE = "inactive";
+          ANNOTATIONS = {};
           sendResponse({
             "output": "The extension is now off."
           });
+          window.location.reload();
           break;
         case "query_state":
           sendResponse({
@@ -277,7 +266,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
     case "server_output":
       switch (request.command) {
         case "incoming_data":
-          console.log(request.payload);
+          //console.log(request.payload);
           let payload = JSON.parse(request.payload);
           GLOBALSTATE = "active";
           ANNOTATIONS = payload.annotations;
@@ -297,15 +286,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             "responseCode": "success",
             "url": thisURL
           });
-          break;
-
-        case "unload_extension":
-          GLOBALSTATE = "inactive";
-          ANNOTATIONS = {};
-          sendResponse({
-            "responseCode": "success"
-          });
-          window.location.reload();
       }
 
   }

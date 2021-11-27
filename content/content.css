@@ -1,6 +1,10 @@
 /*This should contain CSS edits I wnat to apply to the entire page... must be careful that selectors don't overlap
   with elements that the page could reasonably already have.*/
 
+#annotatednews {
+  /* do nothing */
+}
+
 #annotatednews-root {
   /* height and top/bottom should be handled by active.js */
   width: 100% !important;
@@ -23,19 +27,19 @@
 }
 
 .an-current-span {
-  font-weight: bold;
-  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+  /* font-weight: bold;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.2); */
+  background: yellow;
   /* background: red;
   color: white; */
   cursor: pointer;
 }
 
 .ghost-text {
-  height: 50px;
   padding: 5px;
   font-family: "Segoe UI", Tahoma, sans-serif;
   font-style: italic;
-  font-size: 20px;
+  font-size: 12px;
   border-radius: 10px;
   background-color: red;
   color: white;
@@ -43,6 +47,9 @@
   top;
   left: 0;
   z-index: 10000000;
+}
+.ghost-text:hover {
+  cursor: pointer;
 }
 
 

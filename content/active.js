@@ -31,6 +31,16 @@ function show(linkedid) {
   } else {
     popup.removeAttribute('data-show');
   }
+
+  // Send a message to background.js to update the Annotation Data table on the server:
+  chrome.runtime.sendMessage({
+    "type": "server_request",
+    "command": "update_annotation_database",
+    "annotId": linkedid,
+    "newOpen": 1,
+    "helpful": 0
+  });
+
 }
 
 function hideCurrent(linkedid) {
@@ -48,7 +58,7 @@ function resize() {
 
 function openDrawer() {
   panelState = 1;
-  console.log("opening drawer from active.js");
+  //console.log("opening drawer from active.js");
   let frame = $('#annotatednews-root');
   frame.animate({
     "top": "40%"
@@ -57,7 +67,7 @@ function openDrawer() {
 
 function closeDrawer() {
   panelState = 0;
-  console.log("closing drawer from active.js");
+  //console.log("closing drawer from active.js");
   let frame = $('#annotatednews-root');
   let height = $(window).height();
   frame.animate({
@@ -65,25 +75,26 @@ function closeDrawer() {
   }, 100);
 }
 
-function scrollUp() {
-  let prevSpan = $('.an-current.span').closest('.an-span-wrapper');
-  let height = $(window).height();
-  //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
-  $('html, body').animate({
-    scrollTop: (prevSpan.offset().top + (.25)*height)
-  }, 2000);
-  updateFrame(prevSpan);
-}
-
-function scrollDown() {
-  let nextSpan = $('.an-current.span').next('.an-span-wrapper');
-  let height = $(window).height();
-  //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
-  $('html, body').animate({
-    scrollTop: (nextSpan.offset().top + (.25)*height)
-  }, 2000);
-  updateFrame(nextSpan);
-}
+// Auto scroll no longer supported:
+// function scrollUp() {
+//   let prevSpan = $('.an-current.span').closest('.an-span-wrapper');
+//   let height = $(window).height();
+//   //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
+//   $('html, body').animate({
+//     scrollTop: (prevSpan.offset().top + (.25)*height)
+//   }, 2000);
+//   updateFrame(prevSpan);
+// }
+//
+// function scrollDown() {
+//   let nextSpan = $('.an-current.span').next('.an-span-wrapper');
+//   let height = $(window).height();
+//   //from: https://stackoverflow.com/questions/6677035/jquery-scroll-to-element
+//   $('html, body').animate({
+//     scrollTop: (nextSpan.offset().top + (.25)*height)
+//   }, 2000);
+//   updateFrame(nextSpan);
+// }
 
 
 function updateFrame(spanElement){
@@ -125,14 +136,28 @@ $(document).on('click', '.an-span-wrapper', function() {
   if($(this).attr("type") == "counterpoint") {
     //If it's a panel (panel = counterpoint):
     let iframe = document.getElementById('annotatednews-root');
-    iframe.contentWindow.postMessage({
-      "type": "to_frame",
-      "command": "open_panel"
-    }, "*");
     updateFrame($(this));
+
+    // Only open the panel if it's not already open; prevents multiple calls to annotation table
+    // update when a user closes a panel by clicking the same key text again.
+    if(panelState == 0) {
+      iframe.contentWindow.postMessage({
+        "type": "to_frame",
+        "command": "open_panel"
+      }, "*");
+    }
     // frame.js will send a message back here to actually open the drawer.
   } else {
     //If it's a popup:
+    //// (EDGE CASE) if there is a popup currently opened, hide it:
+    // this case is not covered by the "window.addEventListener("click",{})" below
+    // because it looks for clicks that ***aren't*** an "an-span-wrapper".
+    let selected = document.querySelector("[data-show='']");
+    if(selected != null) {
+      let linkedId = selected.getAttribute('linkedid');
+      hideCurrent(linkedId);
+    }
+    /// SHOW THE NEW CLICKED ANNOTATION:
     let linkedId = $(this).attr('id');
     show(linkedId);
   }
@@ -205,6 +230,16 @@ window.addEventListener("message", function(event) {
 
                 case "go_to_link":
                     window.open(request.href, "_blank");
+                    break;
+                case "update_annotation_database":
+                    // Send a message to background.js to update the Annotation Data table on the server:
+                    chrome.runtime.sendMessage({
+                      "type": "server_request",
+                      "command": "update_annotation_database",
+                      "annotId": request.annotId,
+                      "newOpen": request.newOpen,
+                      "helpful": request.helpful
+                    });
             }
     }
     return true;

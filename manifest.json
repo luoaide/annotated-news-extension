@@ -1,29 +1,31 @@
 {
     "name": "Annotated News",
-    "manifest_version": 2,
-    "version": "2.2",
+    "manifest_version": 3,
+    "version": "3.0",
 
-    "description": "For the curious.",
+    "description": "The Annotated News Study is an HRB approved research study at the United States Military Academy at West Point.",
 
-    "permissions": ["activeTab", "storage"],
+    "permissions": ["activeTab", "scripting", "storage"],
 
     "background": {
-        "scripts": ["src/jquery-3.5.1.js", "background.js"],
-        "persistent": false
+        "service_worker": "background.js"
     },
 
-    "content_scripts": [{
-        "matches": ["<all_urls>"],
-        "js": ["src/jquery-3.5.1.js","src/popper.min.js", "src/icons.js", "src/findAndReplaceDOMText.js", "content/modify.js"],
-        "css": ["content/content.css"],
-        "all_frames": false
-    }],
+    "content_scripts": [
+      {
+        "matches": ["https://www.annotatednews.com/instructions"],
+        "js": ["src/jquery-3.5.1.js", "content/ancontent.js"]
+      }
+    ],
 
-    "web_accessible_resources": ["frame/frame.html", "frame/frame.css", "frame/frame.js", "content/active.js"],
+    "web_accessible_resources": [
+      {
+        "resources": ["frame/frame.html", "frame/frame.css", "frame/frame.js", "images/logo.PNG", "images/logo2.PNG", "src/AN_SOURCES/L_ARTICLE_AUDIO1.mp3", "src/AN_SOURCES/L_ARTICLE_SOURCE1.pdf", "src/AN_SOURCES/R_ARTICLE_SOURCE1.pdf"],
+        "matches": [ "<all_urls>" ]
+      }
+    ],
 
-    "content_security_policy": "script-src https://platform.twitter.com/widgets.js 'self'; object-src 'self'",
-
-    "browser_action": {
+    "action": {
         "default_popup": "popup/popup.html"
     },
 

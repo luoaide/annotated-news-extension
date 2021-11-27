@@ -31,3 +31,5 @@ Have: title, content
 
 ### Context Lists
 Have: Title, list of content
+
+Article and Social Read Stats explained.
