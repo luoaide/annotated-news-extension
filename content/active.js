@@ -1,5 +1,7 @@
 //https://stackoverflow.com/questions/4698118/google-chrome-extensions-how-to-include-jquery-in-programmatically-injected-con
-const { createPopper } = Popper;
+const {
+  createPopper
+} = Popper;
 //settup
 let panelState = 0;
 
@@ -7,12 +9,12 @@ let panelState = 0;
 updateCurrentView();
 
 //HIDE AND SHOW FUNCTIONS FOR THE POPUPS
-function show(linkedid) {
+function show(ref, linkedid) {
   //create the new popper with popper.js.org/docs/v2/
-  const ref = document.getElementById(linkedid);
+  //const ref = document.getElementById(linkedid);
   const popup = document.querySelector("[linkedid='" + linkedid + "']");
 
-  if(!popup.hasAttribute('data-show')){
+  if (!popup.hasAttribute('data-show')) {
     const popperInstance = Popper.createPopper(ref, popup, {
       placement: 'auto',
       strategy: 'absolute',
@@ -24,7 +26,7 @@ function show(linkedid) {
       }, ],
     });
     // Make the tooltip visible
-      popup.setAttribute('data-show', '');
+    popup.setAttribute('data-show', '');
 
     // Update its position
     popperInstance.update();
@@ -51,9 +53,14 @@ function hideCurrent(linkedid) {
 function resize() {
   let height = $(window).height();
   $('#annotatednews-root').css({
-    "height": ((0.6*height) + 50) + "px", // we add fifty to account for the "closeArrow" bar above the panel when open
+    "height": ((0.6 * height) + 50) + "px", // we add fifty to account for the "closeArrow" bar above the panel when open
     "top": (height - 100) + "px"
   });
+  let iframe = document.getElementById('annotatednews-root');
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "resize"
+  }, "*");
 }
 
 function openDrawer() {
@@ -97,7 +104,7 @@ function closeDrawer() {
 // }
 
 
-function updateFrame(spanElement){
+function updateFrame(spanElement) {
   $('.an-current-span').removeClass('an-current-span');
   spanElement.addClass('an-current-span');
   let key = $('.an-current-span').first().attr('id');
@@ -107,24 +114,29 @@ function updateFrame(spanElement){
     "command": "update_current",
     "curid": key
   }, "*");
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "preview_current",
+    "curid": key,
+    "kind": spanElement.attr("type"),
+    "key_text": spanElement.text()
+  }, "*");
 }
 
 
 function updateCurrentView() {
-  let mid = $(window).height()/5;
-  let currentSpan =  $(".an-span-wrapper").first();
+  let mid = $(window).height() / 5;
+  let currentSpan = $(".an-span-wrapper").first();
   let minDist = 90000000;
   $(".an-span-wrapper").each(function() {
     //This logic should be upgraded, but for now it is operational.
-    let dist = Math.abs($( this )[0].getBoundingClientRect().top - mid)
-    if(dist < minDist) {
-      currentSpan = $( this );
+    let dist = Math.abs($(this)[0].getBoundingClientRect().top - mid)
+    if (dist < minDist) {
+      currentSpan = $(this);
       minDist = dist;
     }
   });
-  if(!currentSpan.hasClass("an-current-span")) {
-    updateFrame(currentSpan);
-  }
+  updateFrame(currentSpan);
 }
 
 //SECTION 2
@@ -133,14 +145,14 @@ function updateCurrentView() {
 // Tricky stuff needed becasue the element is added during the lifetime of the page...
 $(document).on('click', '.an-span-wrapper', function() {
   //See if it is a panel or Popup:
-  if($(this).attr("type") == "counterpoint") {
+  if ($(this).attr("type") == "counterpoint") {
     //If it's a panel (panel = counterpoint):
     let iframe = document.getElementById('annotatednews-root');
     updateFrame($(this));
 
     // Only open the panel if it's not already open; prevents multiple calls to annotation table
     // update when a user closes a panel by clicking the same key text again.
-    if(panelState == 0) {
+    if (panelState == 0) {
       iframe.contentWindow.postMessage({
         "type": "to_frame",
         "command": "open_panel"
@@ -153,35 +165,52 @@ $(document).on('click', '.an-span-wrapper', function() {
     // this case is not covered by the "window.addEventListener("click",{})" below
     // because it looks for clicks that ***aren't*** an "an-span-wrapper".
     let selected = document.querySelector("[data-show='']");
-    if(selected != null) {
-      let linkedId = selected.getAttribute('linkedid');
-      hideCurrent(linkedId);
+    var oldLinkedId = "none";
+    if (selected != null) {
+      oldLinkedId = selected.getAttribute('linkedid');
+      hideCurrent(oldLinkedId);
     }
     /// SHOW THE NEW CLICKED ANNOTATION:
-    let linkedId = $(this).attr('id');
-    show(linkedId);
+    //// Anothing edge case: if you click the same an-span-wrapper as the currently displayed popper.. action should be
+    // to hide it, not to hide and then reopen it.
+    var newLinkedId = $(this).attr('id');
+    if (newLinkedId != oldLinkedId) {
+      show($(this)[0], newLinkedId);
+    }
   }
 });
 
-window.resize(function(){
+$(document).on('mouseenter', '.an-span-wrapper', function() {
+  let iframe = document.getElementById('annotatednews-root');
+  //$(this) //do something with it.... like get the id.
+  iframe.contentWindow.postMessage({
+    "type": "to_frame",
+    "command": "preview_current",
+    "curid": $(this).attr("id"),
+    "kind": $(this).attr("type"),
+    "key_text": $(this).text()
+  }, "*");
+});
+
+window.resize(function() {
   resize();
 });
 
-window.addEventListener('scroll', function () {
+window.addEventListener('scroll', function() {
   // only update the current view if the panel is not open...
-  if(panelState == 0) {
+  if (panelState == 0) {
     updateCurrentView();
   }
 }, false);
 
-window.addEventListener('click', function (elem) {
+window.addEventListener('click', function(elem) {
   //Find the mouse position:
   // var e = window.event;
   // var posX = e.clientX;
   // var posY = e.clientY;
   // console.log("x: " + posX + " y: " + posY);
   //If the panel is open, close the panel.
-  if(panelState == 1){
+  if (panelState == 1) {
     let iframe = document.getElementById('annotatednews-root');
     iframe.contentWindow.postMessage({
       "type": "to_frame",
@@ -190,9 +219,9 @@ window.addEventListener('click', function (elem) {
   }
 
   //If a popup is displayed: hide it.
-  if(!$(elem.target).hasClass("an-span-wrapper")) {
+  if (!$(elem.target).hasClass("an-span-wrapper")) {
     let selected = document.querySelector("[data-show='']");
-    if(selected != null) {
+    if (selected != null) {
       let linkedId = selected.getAttribute('linkedid');
       hideCurrent(linkedId);
     }
@@ -200,47 +229,47 @@ window.addEventListener('click', function (elem) {
 });
 
 window.addEventListener("message", function(event) {
-    let request = event.data;
-    switch( request.type ) {
-        case "frame_output":
-            switch( request.command ) {
-                //make the frame get larger (open the drawer)
-                case "open_drawer":
-                    openDrawer();
-                    break;
+  let request = event.data;
+  switch (request.type) {
+    case "frame_output":
+      switch (request.command) {
+        //make the frame get larger (open the drawer)
+        case "open_drawer":
+          openDrawer();
+          break;
 
-                case "close_drawer":
-                    closeDrawer();
-                    break;
+        case "close_drawer":
+          closeDrawer();
+          break;
 
-                //redirect to the annotated news hompage
-                case "open_home_page":
-                    window.location.href = "https://www.annotatednews.com/instructions";
-                    break;
+          //redirect to the annotated news hompage
+        case "open_home_page":
+          window.location.href = "https://www.annotatednews.com/instructions";
+          break;
 
-                //scroll up to the previous annotation
-                case "scroll_up":
-                    scrollUp();
-                    break;
+          //scroll up to the previous annotation
+        case "scroll_up":
+          scrollUp();
+          break;
 
-                //scroll down to the next annotation
-                case "scroll_down":
-                    scrollDown();
-                    break;
+          //scroll down to the next annotation
+        case "scroll_down":
+          scrollDown();
+          break;
 
-                case "go_to_link":
-                    window.open(request.href, "_blank");
-                    break;
-                case "update_annotation_database":
-                    // Send a message to background.js to update the Annotation Data table on the server:
-                    chrome.runtime.sendMessage({
-                      "type": "server_request",
-                      "command": "update_annotation_database",
-                      "annotId": request.annotId,
-                      "newOpen": request.newOpen,
-                      "helpful": request.helpful
-                    });
-            }
-    }
-    return true;
+        case "go_to_link":
+          window.open(request.href, "_blank");
+          break;
+        case "update_annotation_database":
+          // Send a message to background.js to update the Annotation Data table on the server:
+          chrome.runtime.sendMessage({
+            "type": "server_request",
+            "command": "update_annotation_database",
+            "annotId": request.annotId,
+            "newOpen": request.newOpen,
+            "helpful": request.helpful
+          });
+      }
+  }
+  return true;
 });

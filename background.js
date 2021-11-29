@@ -27,8 +27,30 @@ function incrementProgress(url) {
   var postURL = ""
   if(siteURL == "https://www.huffpost.com/entry/georgia-election-trump-voter-fraud-claims_n_5ff36b73c5b61817a538bd20" || siteURL == "https://www.breitbart.com/politics/2020/12/17/fraud-happened-sen-rand-paul-says-the-election-in-many-ways-was-stolen/") {
     postURL = "https://www.annotatednews.com/readArticle";
+    chrome.storage.local.get('stats', function(result){
+      console.log(result.stats);
+      var newStatsObj = {};
+      if(typeof(result.stats) !== "undefined") {
+        newStatsObj = result.stats;
+      }
+      if(!("article" in newStatsObj)) {
+        newStatsObj["article"] = Math.round(Date.now() / 1000);
+      }
+      chrome.storage.local.set({"stats": newStatsObj}, () => {});
+    });
   } else if (siteURL == "https://twitter.com/jaketapper/status/1400532544555307009" || siteURL == "https://twitter.com/HawleyMO/status/1344307458085412867") {
     postURL = "https://www.annotatednews.com/readSocial";
+    chrome.storage.local.get('stats', function(result){
+      console.log(result.stats);
+      var newStatsObj = {};
+      if(typeof(result.stats) !== "undefined") {
+        newStatsObj = result.stats;
+      }
+      if(!("social" in newStatsObj)) {
+        newStatsObj["social"] = Math.round(Date.now() / 1000);
+      }
+      chrome.storage.local.set({"stats": newStatsObj}, () => {});
+    });
   } else {
     // do nothing
     postURL = "nothing";
@@ -88,15 +110,13 @@ function updateAnnotationData(annotId, studyPin, opened, helpful) {
     .then(serverResponse => console.log(serverResponse));
 }
 
-function updateUserInteractionsTable(studyPin, sourceType, viewTime, numPops, numPanels, scrolls){
+function updateUserInteractionsTable(studyPin, sourceType, loadTime, endTime){
   let url = "https://www.annotatednews.com/updateExtensionStats";
   var data = {
     "study_pin": studyPin,
     "source_type": sourceType,
-    "view_time": viewTime,
-    "num_pops": numPops,
-    "num_panels": numPanels,
-    "scrolls": scrolls
+    "load_time": loadTime,
+    "end_time": endTime
   };
 
   postData(url, data)
@@ -116,28 +136,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
               console.log(thisUSER);
               loadExtension(thisURL, thisUSER, thisTAB);
           });
-          break;
-        case "send_stats":
-          //can get information like request.type or stuff.
-          chrome.storage.local.get(["studyPin", "stats"], function(result){
-            var sourceType = result.stats.sourceType;
-            var viewTime = result.stats.viewTime;
-            var numPops = result.stats.numPops;
-            var numPanels = result.stats.numPanels;
-            var scrolls = result.stats.scrolls;
-            var studyPin = result.studyPin;
-            ///////////DO THE SEND...
-            updateUserInteractionsTable(studyPin, sourceType, viewTime, numPops, numPanels, scrolls);
-          });
-          // Clear the Stats table so that it is ready to collect stats for the next article/social media post.
-          var emptyStatsDict = {
-            "sourceType": "none",
-            "viewTime": 0,
-            "numPops": 0,
-            "numPanels": 0,
-            "scrolls": 0,
-          };
-          chrome.storage.local.set({"stats": emptyStatsDict}, () => {});
           break;
         case "update_annotation_database":
           //can get information like request.type or stuff.

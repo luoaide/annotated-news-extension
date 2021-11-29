@@ -80,10 +80,22 @@
   color: white;
   background-color: red;
   height: 15px;
-  /* display: inline-block; inline-block would allow (if used) the div to stretch its width to the width of the content...makes it centered and full though...not ideal */
+  display: inline-block;
   width: 250px;
   margin-top: 2px;
-  margin-left: 20px;
+}
+#key-text {
+  display: inline-block;
+  color: red;
+  border-bottom: 1px solid red;
+  font-size: 12px;
+  font-style: italic;
+  width: 300px;
+  margin-left: 10px;
+  text-align: left;
+  overflow: hidden;
+  margin-top: 2px;
+  white-space: nowrap;
 }
 #preview-text {
   width: 100%;
@@ -92,7 +104,8 @@
   overflow: hidden;
   text-align: center;
   color: black;
-  font-size: 30px;
+  font-size: 26px;
+  margin-top: 5px;
   font-family: "Cheltenham";
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
@@ -200,6 +213,8 @@
   font-size: 20px;
   white-space: normal;
   font-family: "Cheltenham";
+  border-bottom: 1px solid black;
+  padding-bottom: 5px;
 }
 .attribution {
   font-family: "Segoe UI", Tahoma, sans-serif;

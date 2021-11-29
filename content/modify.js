@@ -12,7 +12,7 @@ function addPopup(annot) {
 
   let perPill = document.createElement('span');
   perPill.setAttribute('class', 'pill');
-  perPill.textContent = "Annotation";
+  perPill.textContent = "Context Annotation";
 
   //add a title
   let title = document.createElement('p');
@@ -54,37 +54,10 @@ function addPopup(annot) {
       quote.setAttribute('class', 'popup-quote');
       content.appendChild(quote);
       if(!NO_ATTR_ACTIVE) {
-        var string = "Quote from ";
-        var attr = document.createElement('a');
-        attr.setAttribute('class', 'popup-link');
-        attr.setAttribute("target", "_blank");
-        attr.textContent = contentDict[i]['source'];
+        var string = "Quote from <a href=" + contentDict[i]["url"] + " target='blank' class='popup-source-link'>" + contentDict[i]["source"] + "</a>: ";
         quote.innerHTML = string;
-        quote.innerHTML += attr;
-        quote.innerHTML += ": ";
       }
       quote.innerHTML += contentDict[i]['text'];
-
-    } else if(contentDict[i]["content-type"] == "webcontent") {
-      var description = document.createElement('div');
-      description.setAttribute('class', 'popup-description');
-      description.textContent = contentDict[i]['text'];
-      content.appendChild(description);
-
-      var webframe = document.createElement('iframe');
-      webframe.setAttribute('class', 'popup-iframe');
-      webframe.setAttribute('src', contentDict[i]['url']);
-      content.appendChild(webframe);
-
-      var button = document.createElement("div");
-      button.setAttribute('class', 'popup-button');
-      var link = document.createElement('a');
-      link.setAttribute('class', 'popup-link');
-      link.setAttribute("href", contentDict[i]['url']);
-      link.setAttribute("target", "_blank");
-      link.textContent = contentDict[i]['source'];
-      button.appendChild(link);
-      content.appendChild(button);
 
     } else if(contentDict[i]["content-type"] == "file") {
       var description = document.createElement('div');
@@ -167,6 +140,13 @@ function linkData(index) {
       wrapID: annot['unique-id'],
       wrapType: annot['type']
     });
+    // Several attempts to prevent key text that is also a link from performing the link operation:
+    // event.preventDefault() works most consistently.
+    // $("#" + annot['unique-id']).parents().attr("onclick", "return false;");
+    // $("#" + annot['unique-id']).parents().find("a").attr("href", "javascript: void(0);");
+    $("#" + annot['unique-id']).click(function(event){
+      event.preventDefault();
+    });
   }
 
   if (annot['type'] == 'counterpoint') {
@@ -245,7 +225,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
             "url": thisURL
           });
           sendResponse({
-            "output": "The extension is now running."
+            "output": "[Annotations Loaded] Please read the article and the annotations. Feel free to continue exploring and researching the issue as the annotations direct you to other resources."
           });
           break;
         case "turn_off":
@@ -272,7 +252,7 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           ANNOTATIONS = payload.annotations;
           chrome.storage.local.get('is_no_attr', function(result){
             var isNoAttr = result.is_no_attr;
-            if(!isNoAttr) { //pardon the double negative... if its no_attr: just don't add the link.. if its attr, add the link.
+            if(isNoAttr) { //pardon the double negative... if its no_attr: just don't add the link.. if its attr, add the link.
               NO_ATTR_ACTIVE = true;
             } else {
               NO_ATTR_ACTIVE = false;
@@ -280,8 +260,11 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           });
 
           modifyHTML();
+
           let thisURL = window.location.href; // used to check the url in background.js to see if we should increment progress for turning on the extension
           // for a given article.
+
+          // The below callback to background.js adds the first "load time" for article or social to a stats dict in chrome local storage.
           sendResponse({
             "responseCode": "success",
             "url": thisURL

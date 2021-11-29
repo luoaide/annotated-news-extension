@@ -37,18 +37,23 @@ function loadPopup() {
           $("#assignedStudyPin").text(result.studyPin);
       });
       chrome.tabs.query({active: true, currentWindow: true}, function(tabs) {
-        chrome.tabs.sendMessage(tabs[0].id, {
-          "type": "user_input",
-          "command": "query_state"
-        }, function(response) {
-          if(response.status == "active") {
-            $("#loadAnnotations").css("display", "none");
-            $("#removeAnnotations").css("display", "inline");
-          } else {
-            $("#loadAnnotations").css("display", "inline");
-            $("#removeAnnotations").css("display", "none");
-          }
-        });
+        try {
+          chrome.tabs.sendMessage(tabs[0].id, {
+            "type": "user_input",
+            "command": "query_state"
+          }, function(response) {
+            if(response.status == "active") {
+              $("#loadAnnotations").css("display", "none");
+              $("#removeAnnotations").css("display", "inline");
+            } else {
+              $("#loadAnnotations").css("display", "inline");
+              $("#removeAnnotations").css("display", "none");
+            }
+          });
+        } catch {
+          $("#loadAnnotations").css("display", "inline");
+          $("#removeAnnotations").css("display", "none");
+        }
       });
     }
   });

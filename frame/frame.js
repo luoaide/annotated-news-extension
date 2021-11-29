@@ -16,13 +16,19 @@ function setPanel(inputId) {
     // display the correct panel
     panel.css("display", "inline");
     $("#noAnnotationData").hide();
-    // update preview text
-    $("#preview-text").text(panel.find(".panel-preview").text());
-    // $("#explainer-text").text(); can change explainer text too
   } else {
     $("#noAnnotationData").show();
-    $("#preview-text").text("Click text for a popup annotation.");
-    $("#explainer-text").text();
+  }
+}
+
+function updatePreview(linkedid, kind, text) {
+  $("#explainer-text").html("Currently Selected: <b>" + kind + "</b> annotation");
+  $("#key-text").html(text);
+  if(kind == "counterpoint") {
+    let panel = $("div[linkedid='" + linkedid + "']");
+    $("#preview-text").text(panel.find(".panel-preview").text());
+  } else {
+    $("#preview-text").text("Click the highlighted text to view a context annotation...");
   }
 }
 
@@ -131,27 +137,6 @@ $(document).ready(function() {
 
 function addPanel(annot) {
   //annot: is a JSON object with all the annotations at a given index.
-  // FORMAT FOR PANEL
-  // <div class="an-panel" linkedid="an-1234">
-  //   <h1 class="panel-title">Perspectives on the Raffensperger Phone Call</h1>
-  //   <h3 class="panel-text">At Question: Was the Raffensperger phone call illegal?</h3>
-  //   <ul class="perspective-bin">
-  //     <li class="perspective">
-  //       <p class="per-header"><span class="pill">Perspective</span> The phone call was illegal</p>
-  //       <p class="per-quote"> <span class="attribution"> Quote from <a href="https://www.npr.org/2021/01/04/953151921/trumps-call-to-georgia-election-officials-sparks-debate-over-legality-ethics"> NPR:</a> </span>Trump's message during the call also violates Georgia law, according to Anthony Michael Kreis, a Georgia State University law professor, who spoke with Politico on Sunday. \"The Georgia code says that anybody who solicits, requests or commands or otherwise attempts to encourage somebody to commit election fraud is guilty of solicitation of election fraud,\" Kreis said. \"'Soliciting or requesting' is the key language. The president asked, in no uncertain terms, the secretary of state to invent votes, to create votes that were not there. Not only did he ask for that in terms of just overturning the specific margin that Joe Biden won by, but then said we needed one additional vote to secure victory in Georgia.</p>
-  //     </li>
-  //     <li class="perspective">
-  //       <p class="per-header"><span class="pill">Perspective</span> The phone call was disturbing</p>
-  //       <p class="per-quote"><span class="attribution"> Quote from <a href="https://www.npr.org/2021/01/04/953151921/trumps-call-to-georgia-election-officials-sparks-debate-over-legality-ethics"> NPR:</a> </span> Kim Wehle, law professor at the University of Baltimore and author of How to Read the Constitution — and Why, told NPR's Steve Inskeep on Morning Edition on Monday that it's \"a crime to request, solicit or ask someone else to say falsify returns or falsify reports of votes, and arguably that's what we heard on the call.\" She added, \"Whether this is prosecutable is a different question from whether it's antithetical to the rule of law and the Constitution and democracy itself, and I would say clearly it is. It's very disturbing.</p>
-  //     </li>
-  //     <li class="perspective">
-  //       <p class="per-header"><span class="pill">Perspective</span> The phone call was a confidential settlement discussion</p>
-  //       <p class="per-text">Twitter Post from David Shafer, Chairman of the Georgia Republican Party:</p>
-  //       <div class="per-webcontent"><blockquote class="twitter-tweet"><p lang="en" dir="ltr">President <a href="https://twitter.com/realDonaldTrump?ref_src=twsrc%5Etfw">@realDonaldTrump</a> has filed two lawsuits - federal and state - against <a href="https://twitter.com/GaSecofState?ref_src=twsrc%5Etfw">@GaSecofState</a>. The telephone conference call <a href="https://twitter.com/GaSecofState?ref_src=twsrc%5Etfw">@GaSecofState</a> secretly recorded was a “confidential settlement discussion” of that litigation, which is still pending.</p>&mdash; David Shafer (@DavidShafer) <a href="https://twitter.com/DavidShafer/status/1345868002026205184?ref_src=twsrc%5Etfw">January 3, 2021</a></blockquote> <script async src="https://platform.twitter.com/widgets.js" charset="utf-8"></script>
-  //       </div>
-  //     </li>
-  //   </ul>
-  // </div>
 
   let panel = document.createElement('div');
   panel.setAttribute('class', 'an-panel');
@@ -172,7 +157,7 @@ function addPanel(annot) {
 
   let perPill = document.createElement('span');
   perPill.setAttribute('class', 'pill');
-  perPill.textContent = "Perspective";
+  perPill.textContent = "Perspective ";
 
   //add content
   var content = annot["perspectives"];
@@ -182,6 +167,7 @@ function addPanel(annot) {
 
     let perHeader = document.createElement('p');
     perHeader.setAttribute('class', 'per-header');
+    perPill.textContent = "Perspective " + (i+1);
     perHeader.appendChild(perPill);
     perHeader.innerHTML += content[i]["perspective"];
     perspective.appendChild(perHeader);
@@ -206,39 +192,11 @@ function addPanel(annot) {
       var quote = document.createElement('p');
       quote.setAttribute('class', 'per-quote');
       if(!NO_ATTR_ACTIVE) {
-        var string = "Quote from ";
-        var attr = document.createElement('a');
-        attr.setAttribute('class', 'attribution');
-        attr.setAttribute('href', content[i]['url']);
-        attr.setAttribute("target", "_blank");
-        attr.textContent = content[i]['source'];
+        var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
         quote.innerHTML = string;
-        quote.innerHTML += attr;
-        quote.innerHTML += ": ";
       }
       quote.innerHTML += content[i]['text'];
       perspective.appendChild(quote);
-
-    } else if(content[i]["content-type"] == "webcontent") {
-      var description = document.createElement('p');
-      description.setAttribute('class', 'per-text');
-      description.textContent = content[i]['text'];
-      perspective.appendChild(description);
-
-      var webframe = document.createElement('iframe');
-      webframe.setAttribute('class', 'per-webcontent');
-      webframe.setAttribute('src', content[i]['url']);
-      perspective.appendChild(webframe);
-
-      var button = document.createElement("div");
-      button.setAttribute('class', 'per-button');
-      var link = document.createElement('a');
-      link.setAttribute('class', 'per-link');
-      link.setAttribute("href", content[i]['url']);
-      link.setAttribute("target", "_blank");
-      link.textContent = content[i]['source'];
-      button.appendChild(link);
-      perspective.appendChild(button);
 
     } else if(content[i]["content-type"] == "file") {
       let perText = document.createElement('p');
@@ -261,15 +219,8 @@ function addPanel(annot) {
       var quote = document.createElement('p');
       quote.setAttribute('class', 'per-quote');
       if(!NO_ATTR_ACTIVE) {
-        var string = "Quote from ";
-        var attr = document.createElement('a');
-        attr.setAttribute('class', 'attribution');
-        attr.setAttribute('href', content[i]['path']);
-        attr.setAttribute("target", "_blank");
-        attr.textContent = content[i]['source'];
+        var string = "Quote from <a href=" + content[i]["path"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
         quote.innerHTML = string;
-        quote.innerHTML += attr;
-        quote.innerHTML += ": ";
       }
       quote.innerHTML += content[i]['text'];
       perspective.appendChild(quote);
@@ -280,15 +231,8 @@ function addPanel(annot) {
         var quote = document.createElement('p');
         quote.setAttribute('class', 'per-quote');
         if(!NO_ATTR_ACTIVE) {
-          var string = "Quote from ";
-          var attr = document.createElement('a');
-          attr.setAttribute('class', 'attribution');
-          attr.setAttribute('href', content[i]['url']);
-          attr.setAttribute("target", "_blank");
-          attr.textContent = content[i]['source'];
+          var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
           quote.innerHTML = string;
-          quote.innerHTML += attr;
-          quote.innerHTML += ": ";
         }
         quote.innerHTML += list[p];
         perspective.appendChild(quote);
@@ -334,11 +278,15 @@ window.addEventListener("message", function(event) {
 
         case "update_current": //message coming from modify.js
           setPanel(request.curid);
+          break;
+
+        case "preview_current":
+          updatePreview(request.curid, request.kind, request.key_text);
+          break;
+
+        case "resize":
+          resize();
       }
   }
   true;
-});
-
-window.addEventListener("resize", function() {
-  resize();
 });

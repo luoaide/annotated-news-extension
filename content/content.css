@@ -29,7 +29,7 @@
 .an-current-span {
   /* font-weight: bold;
   text-shadow: 1px 1px 0px rgba(0,0,0,0.2); */
-  background: yellow;
+  background: #ffff99;
   /* background: red;
   color: white; */
   cursor: pointer;
@@ -39,10 +39,14 @@
   padding: 5px;
   font-family: "Segoe UI", Tahoma, sans-serif;
   font-style: italic;
-  font-size: 12px;
-  border-radius: 10px;
-  background-color: red;
-  color: white;
+  font-size: 15px;
+  background-color: white;
+  border-right: 2px solid red;
+  border-bottom: 2px solid red;
+  border-top: 2px solid red;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  color: black;
   position: absolute;
   top;
   left: 0;
@@ -60,17 +64,37 @@ an-popup {
   border-radius: 10px;
   padding: 5px;
   padding-bottom: 10px;
-  width: 250px;
+  width: 300px;
+  max-height: 50%;
   display: none;
   z-index: 10001;
   position: absolute;
   cursor: pointer;
   white-space: normal;
-  overflow: scroll;
+  overflow-y: auto;
   text-align: center !important;
 }
 an-popup::-webkit-scrollbar {
-  display: none;
+  width: 8px;
+  background-color: white;
+  border-radius: 2px;
+}
+an-popup::-webkit-scrollbar-thumb {
+  width: 8px;
+  background-color: #ff9999;
+  border-radius: 2px;
+}
+
+.idPill {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  font-size: 8px;
+  color: white;
+  background-color: red;
+  height: 10px;
+  padding: 1px;
+  margin: 1px;
 }
 
 .popup-title {
@@ -120,6 +144,10 @@ an-popup::-webkit-scrollbar {
   font-family: "Segoe UI", Tahoma, sans-serif !important;
   font-size: 15px !important;
   color: red !important;
+}
+
+.popup-source-link {
+  color: white;
 }
 
 .popup-quote {
