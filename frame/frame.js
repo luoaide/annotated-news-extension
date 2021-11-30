@@ -192,7 +192,7 @@ function addPanel(annot) {
       var quote = document.createElement('p');
       quote.setAttribute('class', 'per-quote');
       if(!NO_ATTR_ACTIVE) {
-        var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
+        var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + content[i]["source"] + "</a>: ";
         quote.innerHTML = string;
       }
       quote.innerHTML += content[i]['text'];
@@ -219,7 +219,7 @@ function addPanel(annot) {
       var quote = document.createElement('p');
       quote.setAttribute('class', 'per-quote');
       if(!NO_ATTR_ACTIVE) {
-        var string = "Quote from <a href=" + content[i]["path"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
+        var string = "Quote from <a href=" + content[i]["path"] + " target='blank' class='attribution'>" + content[i]["source"] + "</a>: ";
         quote.innerHTML = string;
       }
       quote.innerHTML += content[i]['text'];
@@ -231,7 +231,7 @@ function addPanel(annot) {
         var quote = document.createElement('p');
         quote.setAttribute('class', 'per-quote');
         if(!NO_ATTR_ACTIVE) {
-          var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + contentDict[i]["source"] + "</a>: ";
+          var string = "Quote from <a href=" + content[i]["url"] + " target='blank' class='attribution'>" + content[i]["source"] + "</a>: ";
           quote.innerHTML = string;
         }
         quote.innerHTML += list[p];
@@ -240,7 +240,7 @@ function addPanel(annot) {
 
     } else {
       // error pass for now.
-      console.log("annotatednews/frame.js tried to load an unsupported content-type into a perpsectives panel.");
+      console.log("annotatednews/frame.js tried to load an unsupported content-type into a perspectives panel.");
     }
 
     perspectiveBin.appendChild(perspective);
@@ -265,6 +265,7 @@ window.addEventListener("message", function(event) {
       switch (request.command) {
         case "add_panel": //message coming from modify.js
           let annot = JSON.parse(request.annotation);
+          NO_ATTR_ACTIVE = request.no_attr_active;
           addPanel(annot);
           break;
 

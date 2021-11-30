@@ -148,6 +148,8 @@ an-popup::-webkit-scrollbar-thumb {
 
 .popup-source-link {
   color: white;
+  text-decoration: underline;
+  font-weight: bold;
 }
 
 .popup-quote {

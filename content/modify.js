@@ -66,10 +66,10 @@ function addPopup(annot) {
       content.appendChild(description);
 
       var link = document.createElement('a');
-      link.setAttribute('class', 'popup-link');
+      link.setAttribute('class', 'popup-source-link');
       link.setAttribute("href", contentDict[i]['path']);
       link.setAttribute("target", "_blank");
-      link.textContent = "View File";
+      link.textContent = "Open File";
       content.appendChild(link);
 
     } else {
@@ -97,6 +97,7 @@ function addPanel(annot) {
     "type": "to_frame",
     "command": "add_panel",
     "annotation": JSON.stringify(annot),
+    "no_attr_active": NO_ATTR_ACTIVE
   }, "*");
 }
 
