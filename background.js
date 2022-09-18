@@ -1,17 +1,13 @@
 'use strict';
-//HELPFUL RESOURCE: https://thoughtbot.com/blog/how-to-make-a-chrome-extension
-//from: https://www.tutorialrepublic.com/javascript-tutorial/javascript-ajax.php
 
-// I think of this backgroud script as running at all times out of view when the
-// extension is enabled. It is the controller that gives
-// us the key to interact with other content scripts that we throw into the DOM
-// of specific pages.
+// Think of this backgroud script as running at all times out of view when the
+// extension is enabled. It is the controller that allows us to interact with
+// other content scripts that we throw into the DOM of specific pages.
 
 async function postData(url = '', data = {}) {
-  // Default options are marked with *
   const response = await fetch(url, {
     method: 'POST',
-    mode: 'cors', // no-cors, *cors, same-origin
+    mode: 'cors',
     headers: {
       'Content-Type': 'application/json'
     },
@@ -21,7 +17,7 @@ async function postData(url = '', data = {}) {
 }
 
 function incrementProgress(url) {
-  // UPDATE THE STUDY BACKEND HERE... BUT BE CAREFUL NOT TO INCREMENT EVERY SINGLE TIME (handled by server)
+  // UPDATE THE STUDY BACKEND HERE... The server must include logic to ensure that repeated increments are not made for the same trigger
   // Send a post request to the Server to increment Progress.
   var siteURL = url;
   var postURL = ""
@@ -138,7 +134,6 @@ chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
           });
           break;
         case "update_annotation_database":
-          //can get information like request.type or stuff.
           var annotId = request.annotId;
           var opened = request.newOpen; // 1 if this is a new open, 0 if no event...
           // sum all entries on same annotId in order to get the total number of opened and helpful/unhelpful.
