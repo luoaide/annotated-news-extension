@@ -1,6 +1,6 @@
 function injectScripts() {
   // This function is a way around using <all_urls> match in manifest.json. Instead, because we have activeTab
-  // enabled. Whenever the user clicks the icon, the base scripts previously described in manifest.JSON as:
+  // enabled, henever the user clicks the icon, the base scripts previously described in manifest.JSON as:
   // "content_scripts": [{
   //     "matches": ["<all_urls>"],
   //     "js": ["src/jquery-3.5.1.js","src/popper.min.js", "src/icons.js", "src/findAndReplaceDOMText.js", "content/modify.js"],
@@ -23,7 +23,10 @@ function injectScripts() {
 
 function loadPopup() {
   // AFTER THE CONTENT SCRIPT HAS BEEN LOADED.... THEN CHOSE WHICH POPUP VIEW TO DISPLAY:
-  //TESTINGchrome.storage.local.remove(['studyPin']);
+
+  // DURING TESTING: remove stored info from chrome.storage.local with:
+  // chrome.storage.local.remove(['studyPin']);
+
   chrome.storage.local.get(['studyPin'], function(result) {
     if(typeof result.studyPin == "undefined") {
       //////////////// IF NOT SYNCED WITH STUDY WEBSITE ///////////////////////
@@ -92,7 +95,7 @@ $(document).ready(function(){
         if(response.status == "synced") {
           let studyPin = response.studyPin;
           let cNum = response.cNum;
-          //for TEsTING
+          // for TESTING
           // studyPin = 1;
           // cNum = 12345678;
           //////
