@@ -1,82 +1,173 @@
 /*This should contain CSS edits I wnat to apply to the entire page... must be careful that selectors don't overlap
   with elements that the page could reasonably already have.*/
 
+#annotatednews {
+  /* do nothing */
+}
+
 #annotatednews-root {
-  height: 50% !important;
-  width: 50% !important;
-  border: none;
-  top: 100%;
-  left: 25% !important;
+  /* height and top/bottom should be handled by active.js */
+  width: 100% !important;
+  border-top: 2px solid red;
   position: fixed !important;
   text-align: center !important;
   overflow: hidden;
-  border-radius: 15px;
-  border-left: 3px solid black;
-  border-right: 3px solid black;
+  z-index: 99999999;
 }
 
-.an-span-wrapper[category='context'] {
+.an-span-wrapper {
   z-index: 9999999;
   border-bottom: 2px solid yellow;
+  /* background-color: yellow; */
 }
-.an-span-wrapper[category='context']:hover {
+.an-span-wrapper:hover {
   background: yellow;
-  cursor: pointer;
-}
-
-.an-span-wrapper[category='background'] {
-  z-index: 9999999;
-  border-bottom: 2px solid pink;
-}
-.an-span-wrapper[category='background']:hover {
-  background: pink;
+  /* color: white; */
   cursor: pointer;
 }
 
 .an-current-span {
-  font-weight: bold;
-  text-shadow: 1px 1px 0px rgba(0,0,0,0.2);
+  /* font-weight: bold;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.2); */
+  background: #ffff99;
+  /* background: red;
+  color: white; */
+  cursor: pointer;
+}
+
+.ghost-text {
+  padding: 5px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-style: italic;
+  font-size: 15px;
+  background-color: white;
+  border-right: 2px solid red;
+  border-bottom: 2px solid red;
+  border-top: 2px solid red;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  color: black;
+  position: absolute;
+  top;
+  left: 0;
+  z-index: 10000000;
+}
+.ghost-text:hover {
+  cursor: pointer;
 }
 
 
 /* CSS Styling for each of the popup elements */
 an-popup {
-  background-color: black;
-  color: white;
-  font-size: 13px;
+  background-color: red;
+  border: 2px solid red;
+  border-radius: 10px;
   padding: 5px;
-  width: 250px;
+  padding-bottom: 10px;
+  width: 300px;
+  max-height: 50%;
   display: none;
   z-index: 10001;
   position: absolute;
   cursor: pointer;
+  white-space: normal;
+  overflow-y: auto;
+  text-align: center !important;
+}
+an-popup::-webkit-scrollbar {
+  width: 8px;
+  background-color: white;
+  border-radius: 2px;
+}
+an-popup::-webkit-scrollbar-thumb {
+  width: 8px;
+  background-color: #ff9999;
+  border-radius: 2px;
 }
 
-an-popup[category="context"] {
-  background: pink;
+.idPill {
+  position: absolute;
+  top: -10px;
+  border-radius: 2px;
+  font-size: 8px;
+  color: white;
+  background-color: red;
+  height: 10px;
+  padding: 1px;
+  margin: 1px;
 }
 
 .popup-title {
-  width: 100%;
-  font-size: 20px;
-  border-bottom: 2px solid white;
-  text-align: left;
-  padding: 0;
-  color: white;
+  font-size: 20px !important;
+  margin: 0 !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  text-align: center !important;
+  padding: 0 !important;
+  color: white !important;
+  border-bottom: 1px solid white !important;
 }
 
-.popup-line {
-  height: 2px;
-  width: 100%;
-  margin: 0;
-  padding: 0;
+.popup-body {
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  margin: 0 !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
 }
 
-.popup-text {
-  text-align: left;
-  font-size: 15px;
+.popup-content {
+  border: 2px solid white !important;
+  margin: 5px !important;
+  padding-bottom: 10px !important;
+  padding: 2px !important;
+  border-radius: 5px !important;
+}
+
+.popup-description {
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
+}
+
+.popup-button {
+  text-align: center !important;
+  color: red !important;
+  background-color: white !important;
+  border-radius: 5px !important;
+  padding: 10px;
+}
+
+.popup-link {
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: red !important;
+}
+
+.popup-source-link {
   color: white;
-  padding: 5px;
+  text-decoration: underline;
+  font-weight: bold;
+}
+
+.popup-quote {
+  text-align: center !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  font-size: 15px !important;
+  color: white !important;
+  padding: 5px !important;
+}
+.pill {
+  border-radius: 5px !important;
+  font-size: 12px !important;
+  color: red !important;
+  background-color: white !important;
+  height: 15px !important;
+  padding: 2px !important;
+  font-family: "Segoe UI", Tahoma, sans-serif !important;
+  /* display: inline-block; inline-block would allow (if used) the div to stretch its width to the width of the content...makes it centered and full though...not ideal */
 }
 
 an-popup[data-show] {
@@ -86,13 +177,13 @@ an-popup[data-show] {
 .popup-arrow,
 .popup-arrow::before {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  background: inherit;
+  width: 20px;
+  height: 20px;
 }
 
 .popup-arrow {
   visibility: hidden;
+  background-color: red;
 }
 
 .popup-arrow::before {

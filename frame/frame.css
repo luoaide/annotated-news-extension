@@ -3,77 +3,127 @@
   padding: 0;
 }
 
+@font-face {
+    font-family: "Cheltenham";
+    src: url("Cheltenham.otf") format("opentype");
+}
+
 /* TOOL BAR CSS */
-#toolbar-wrapper {
+#closeArrow {
+  background-color: white;
   width: 100%;
-  height: 80px;
+  height: 50px;
+  text-align: center;
+  color: red;
+  font-size: 20px;
+  z-index: 2;
+}
+#closeArrow:hover {
+  cursor: pointer;
+  background-color: red;
+  color: white;
+}
+
+#toolbar-wrapper {
+  background-color: rgba(255,255,255,1);
+  width: 100%;
+  height: 100px;
   top: 0;
   left: 0;
   position: fixed;
   text-align: center;
+  z-index: 2;
 }
+
 #toolbar {
   text-align: center;
-  height: 80px;
-  background-color: rgba(255,255,255,0.8);
-  background-color: rgba(0,0,0,1);
-  padding: 2px;
+  height: 100px;
+  /* background-color: rgba(255,255,255,0.8); */
+  /*background-color: rgba(0,0,0,1);*/
 }
+
 .toolbox {
-  height: 50px;
+  height: 100px;
   display: inline-block;
-  border-radius: 10px;
-  border: 1px solid black;
+  /* border-radius: 10px; */
+  /* border: 1px solid black; */
   vertical-align: middle;
   list-style-type: none;
   padding: 5px;
   margin: 3px;
 }
 
-.toolbox:hover {
+#logoBox {
+  /* border-right: 2px solid red; */
+}
+#logoBox:hover {
   cursor: pointer;
 }
 
-#gearbox {
-  font-size: 40px;
-  background-color: white;
-  width: 50px;
-  padding-top: 5px;
-}
-
-#title {
-  font-size: 20px;
-  color: black;
-  text-align: center;
-  background-color: white;
+#logo {
+  height: 100px;
 }
 
 #preview {
-  border: 4px solid purple;
+  background: white;
   overflow: hidden;
-  text-align: left;
-  width: 200px;
+  text-align: center;
+  height: 100px;
+  width: 70%;
 }
 #preview:hover {
   cursor: pointer;
 }
-
-#preview-text {
-  height: 100%;
-  width: 90%;
-  margin-left: 2px;
-  overflow: hidden;
+#explainer-text {
+  border-radius: 5px;
+  font-size: 12px;
+  color: white;
+  background-color: red;
+  height: 15px;
+  display: inline-block;
+  width: 250px;
+  margin-top: 2px;
+}
+#key-text {
+  display: inline-block;
+  color: red;
+  border-bottom: 1px solid red;
+  font-size: 12px;
+  font-style: italic;
+  width: 300px;
+  margin-left: 10px;
   text-align: left;
+  overflow: hidden;
+  margin-top: 2px;
+  white-space: nowrap;
+}
+#preview-text {
+  width: 100%;
+  height: 100%;
+  position: relative;
+  overflow: hidden;
+  text-align: center;
   color: black;
-  width: 200px;
-  font-size: 20px;
+  font-size: 26px;
+  margin-top: 5px;
+  font-family: "Cheltenham";
   mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
   -webkit-mask-image: linear-gradient(to bottom, black 80%, transparent 100%);
 }
 
+#noAnnotationData {
+  padding: 10px;
+  background-color: red;
+  color: white;
+  font-size: 30px;
+  font-family: "Cheltenham";
+  border-radius: 10px;
+  margin: 20px;
+}
+
 #arrows {
-  font-size: 20px;
-  width: 100px;
+  font-size: 30px;
+  width: 15%;
   background-color: white;
 }
 #arrowHolder {
@@ -82,14 +132,17 @@
 }
 .arrow {
   background-color: white;
-  border-radius: 20px;
-  border: 0px solid black;
-  height: 25px;
-  width: 100px;
+  border-radius: 10px;
+  /* border: 2px solid red; */
+  height: 40px;
+  width: 100%;
 }
 .arrow:hover {
-  background-color: black;
-  color: white;
+  background-color: white;
+  border: 2px solid red;
+  margin-top: -2px;
+  margin-left: -2px;
+  color: red;
   cursor: pointer;
 }
 /* END TOOL BAR CSS */
@@ -99,45 +152,106 @@
 /* PANEL CSS */
 #panel-holder {
   width: 100%;
-  height;
+  height; /* height set by frame.js */
   display: inline;
-  overflow-y: scroll;
-  background-color: white;
-  z-index: 1000;
+  background-color: rgba(255,255,255,1);
   position: fixed;
-  left: 0%;
-  top: 80px;
+  left: 0;
+  top: 20px;
   text-align: center;
-  border-top: 5px solid black;
+  z-index: 1
 }
 
-/*default to no visibility so that only the correct one is visible */
+/* default to no visibility so that only the correct one is visible */
 .an-panel{
-  overflow-y: scroll;
-  display: none;
-  padding: 10px;
+  display: inline; /* change to default which is none */
 }
 
 .panel-title {
 
 }
-
-.panel-image {
-  width: 200px;
-  height: 200px;
-}
-
-.panel-link {
+.panel-text {
 
 }
-
-.panel-body {
-  font-size: 20px;
-  color: black;
-  text-align: center;
-}
-
 .panel-preview {
   display: none;
+}
+.perspective-bin {
+  margin-top: 5px;
+  overflow: auto;
+  white-space: nowrap;
+
+}
+.perspective {
+  display: inline-block;
+  white-space: normal;
+  border-radius: 10px;
+  background-color: white;
+  vertical-align: middle;
+  list-style-type: none;
+  padding: 10px;
+  margin: 5px;
+  width: 40%;
+  text-decoration: none;
+  border: 2px solid red;
+  overflow: scroll;
+}
+.perspective::-webkit-scrollbar {
+  display: none;
+}
+.pill {
+  border-radius: 5px;
+  font-size: 12px;
+  color: white;
+  background-color: red;
+  height: 15px;
+  padding: 2px;
+  margin: 5px;
+  /* display: inline-block; inline-block would allow (if used) the div to stretch its width to the width of the content...makes it centered and full though...not ideal */
+}
+.per-header {
+  font-size: 20px;
+  white-space: normal;
+  font-family: "Cheltenham";
+  border-bottom: 1px solid black;
+  padding-bottom: 5px;
+}
+.attribution {
+  font-family: "Segoe UI", Tahoma, sans-serif;
+  font-size: 15px;
+  font-style: bold;
+}
+.per-text {
+  margin-top: 5px;
+  white-space: normal;
+  margin-top: 5px;
+  font-size: 15px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-quote {
+  margin-top: 5px;
+  white-space: normal;
+  font-size: 15px;
+  font-style: italic;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-source {
+  font-size: 15px;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-link {
+  font-size: 15px;
+  color: white;
+  font-family: "Segoe UI", Tahoma, sans-serif;
+}
+.per-button {
+  background-color: red;
+  margin-top: 10px;
+  padding: 5px;
+  color: white;
+  border-radius: 5px;
+}
+.per-webcontent {
+
 }
 /* END PANEL CSS */

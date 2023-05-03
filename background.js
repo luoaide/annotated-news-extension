@@ -1,141 +1,149 @@
 'use strict';
-//HELPFUL RESOURCE: https://thoughtbot.com/blog/how-to-make-a-chrome-extension
-//from: https://www.tutorialrepublic.com/javascript-tutorial/javascript-ajax.php
 
-// I think of this backgroud script as running at all times out of view when the
-// extension is enabled. It is the controller that gives
-// us the key to interact with other content scripts that we throw into the DOM
-// of specific pages.
+// Think of this backgroud script as running at all times out of view when the
+// extension is enabled. It is the controller that allows us to interact with
+// other content scripts that we throw into the DOM of specific pages.
 
-function sendRequest(currentURL, currentUSER, currentTAB) {
-  // chrome.tabs.sendMessage(currentTAB, {
-  //     "type": "server_output",
-  //     "command": "incoming_data",
-  //     "payload": JSON.stringify({
-  //       "meta-data": {
-  //         "file": "sample_annotations",
-  //         "source-url": "https://www.nytimes.com/2021/04/05/world/europe/iran-nuclear-talks-explained.html",
-  //         "date": "11 April 2021"
-  //       },
-  //
-  //       "annotations": [{
-  //           "type": "panel",
-  //           "unique-id": "an-2394857089",
-  //           "category": "context",
-  //           "key-text": "In Vienna last week, the signers",
-  //           "preview": "Some preview text to give the reader a hint about what this annotation includes",
-  //           "panel-title": "The Signers of the 2015 Iran Nuclear Deal",
-  //           "images": "https://static01.nyt.com/images/2021/04/05/world/05IRAN-EXPLAINER2/05IRAN-EXPLAINER2-superJumbo.jpg?quality=90&auto=webp",
-  //           "links": ["https://en.wikipedia.org/wiki/Iran", "https://apnews.com/article/middle-east-iran-358384f03b1ef6b65f4264bf9a59a458"],
-  //           "text-bodies": ["This is the first point I want to make.", "Here is the second point, maybe below the pictures and links?", "I'd encourage you to consider this perspective"]
-  //         }, {
-  //           "type": "popup",
-  //           "unique-id": "an-423573459",
-  //           "category": "background",
-  //           "key-text": "and the United States insist that they want to return to the deal",
-  //           "preview": "Some preview text to give the reader a hint about what this annotation includes",
-  //           "popup-title": "The Signers of the 2015 Iran Nuclear Deal",
-  //           "images": "https://static01.nyt.com/images/2021/04/05/world/05IRAN-EXPLAINER2/05IRAN-EXPLAINER2-superJumbo.jpg?quality=90&auto=webp",
-  //           "links": ["https://en.wikipedia.org/wiki/Iran", "https://apnews.com/article/middle-east-iran-358384f03b1ef6b65f4264bf9a59a458"],
-  //           "text-body": "This is the first point I want to make."
-  //         }, {
-  //           "type": "panel",
-  //           "unique-id": "an-2394857089",
-  //           "category": "context",
-  //           "key-text": "the talks will be much more strained",
-  //           "preview": "DISPUTED!",
-  //           "panel-title": "PANEL 2",
-  //           "images": "https://static01.nyt.com/images/2021/04/05/world/05IRAN-EXPLAINER2/05IRAN-EXPLAINER2-superJumbo.jpg?quality=90&auto=webp",
-  //           "links": ["https://en.wikipedia.org/wiki/Iran", "https://apnews.com/article/middle-east-iran-358384f03b1ef6b65f4264bf9a59a458"],
-  //           "text-bodies": ["Thdleta detlat asda;sdlkfja; asdflk asdflI want to make.", "Here is the second point, maybe below the pictures and links?", "I'd encourage you to consider this perspective"]
-  //         }, {
-  //           "type": "panel",
-  //           "unique-id": "an-2394857089",
-  //           "category": "context",
-  //           "key-text": "Natanz was done with the knowledge or even the permission of the United State",
-  //           "preview": "About some guy...",
-  //           "panel-title": "PANEL 4",
-  //           "images": "https://static01.nyt.com/images/2021/04/05/world/05IRAN-EXPLAINER2/05IRAN-EXPLAINER2-superJumbo.jpg?quality=90&auto=webp",
-  //           "links": ["https://en.wikipedia.org/wiki/Iran", "https://apnews.com/article/middle-east-iran-358384f03b1ef6b65f4264bf9a59a458"],
-  //           "text-bodies": ["DIFFERENT TEXT IN THIS ONEint, maybe below the pictures and links?", "I'd encourage you to consider this perspective"]
-  //         }, {
-  //           "type": "popup",
-  //           "unique-id": "an-423573459",
-  //           "category": "background",
-  //           "key-text": "worst deal ever negotiated",
-  //           "preview": "Some preview text to give the reader a hint about what this annotation includes",
-  //           "popup-title": "POPUP NUMBER 2 this one is really exciting!!!",
-  //           "images": "https://static01.nyt.com/images/2021/04/05/world/05IRAN-EXPLAINER2/05IRAN-EXPLAINER2-superJumbo.jpg?quality=90&auto=webp",
-  //           "links": ["https://en.wikipedia.org/wiki/Iran", "https://apnews.com/article/middle-east-iran-358384f03b1ef6b65f4264bf9a59a458"],
-  //           "text-body": "WORST DEAL."
-  //         }
-  //       ]
-  //     })
-  //
-  // }, function(response){
-  //   //After all the elements have been modified and added to the page... load Active.JS.
-  //   if(response.responseCode == "success") {
-  //     //consider just throwing this content script in at the beginning, which I think I do anyway... might be redundant.
-  //     chrome.tabs.executeScript(currentTAB, {
-  //       file: 'content/active.js'
-  //     });
-  //   }
-  //   true;
-  // });
-    $.ajax({
-        // populate with the correct address to the Flask App Web Server
-        url: "http://annotatednews-env.eba-me8iqkmp.us-east-2.elasticbeanstalk.com/loadextension",
-        type: "POST",
-        data: {
-            user_current_url: currentURL,
-            user_token: currentUSER
-        },
-        dataType: "json",
-        //returns dataObject
-        success: function(dataObject) {
-            //DO SOMETHING WITH THE RETURNED JSON OUTPUT
-            //Return it via post message to modify.js
-            chrome.tabs.sendMessage(currentTAB, {
-                "type": "server_output",
-                "command": "incoming_data",
-                "payload": JSON.stringify(dataObject)
-            }, function(response){
-              //After all the elements have been modified and added to the page... load Active.JS.
-              if(response.responseCode == "success") {
-                //consider just throwing this content script in at the beginning, which I think I do anyway... might be redundant.
-                chrome.tabs.executeScript(currentTAB, {
-                  file: 'content/active.js'
-                });
-              }
-              true;
-            });
+async function postData(url = '', data = {}) {
+  const response = await fetch(url, {
+    method: 'POST',
+    mode: 'cors',
+    headers: {
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify(data)
+  });
+  return response.json();
+}
+
+function incrementProgress(url) {
+  // UPDATE THE STUDY BACKEND HERE... The server must include logic to ensure that repeated increments are not made for the same trigger
+  // Send a post request to the Server to increment Progress.
+  var siteURL = url;
+  var postURL = ""
+  if(siteURL == "https://www.huffpost.com/entry/georgia-election-trump-voter-fraud-claims_n_5ff36b73c5b61817a538bd20" || siteURL == "https://www.breitbart.com/politics/2020/12/17/fraud-happened-sen-rand-paul-says-the-election-in-many-ways-was-stolen/") {
+    postURL = "https://www.annotatednews.com/readArticle";
+    chrome.storage.local.get('stats', function(result){
+      console.log(result.stats);
+      var newStatsObj = {};
+      if(typeof(result.stats) !== "undefined") {
+        newStatsObj = result.stats;
+      }
+      if(!("article" in newStatsObj)) {
+        newStatsObj["article"] = Math.round(Date.now() / 1000);
+      }
+      chrome.storage.local.set({"stats": newStatsObj}, () => {});
+    });
+  } else if (siteURL == "https://twitter.com/jaketapper/status/1400532544555307009" || siteURL == "https://twitter.com/HawleyMO/status/1344307458085412867") {
+    postURL = "https://www.annotatednews.com/readSocial";
+    chrome.storage.local.get('stats', function(result){
+      console.log(result.stats);
+      var newStatsObj = {};
+      if(typeof(result.stats) !== "undefined") {
+        newStatsObj = result.stats;
+      }
+      if(!("social" in newStatsObj)) {
+        newStatsObj["social"] = Math.round(Date.now() / 1000);
+      }
+      chrome.storage.local.set({"stats": newStatsObj}, () => {});
+    });
+  } else {
+    // do nothing
+    postURL = "nothing";
+  }
+
+  if(postURL != "nothing") {
+    chrome.storage.local.get('cNumber', function(result){
+      var data = {
+        'c_number': result.cNumber
+      }
+      postData(postURL, data)
+        .then(response => console.log(response));
+    });
+  }
+}
+
+function loadExtension(currentURL, studyPin, currentTAB) {
+  let url = "https://www.annotatednews.com/loadExtension";
+  var data = {
+    "user_current_url": currentURL,
+    "study_pin": studyPin
+  };
+
+  postData(url, data)
+    .then(serverResponse => {
+      chrome.tabs.sendMessage(currentTAB, {
+        "type": "server_output",
+        "command": "incoming_data",
+        "payload": JSON.stringify(serverResponse)
+      }, function(response) {
+        //After all the elements have been modified and added to the page... load Active.JS.
+        if (response.responseCode == "success") {
+          // adds active.js to the context in its own "isolated world"
+          chrome.scripting.executeScript({
+            target: { tabId: currentTAB },
+            files: ['content/active.js']
+          });
+
+          // once we successfully load the extension, increment study progress through another .fetch()
+          incrementProgress(response.url);
         }
+        return true;
+      });
     });
 }
 
-chrome.runtime.onMessage.addListener( function(request, sender, sendResponse) {
-    switch( request.type ) {
-        case "server_request":
-            switch( request.command ){
-                case "turn_on":
-                    let thisTAB = sender.tab.id;
-                    let thisURL = request.url;
-                    let thisUSER = "12874";
-                    sendRequest(thisURL, thisUSER, thisTAB);
-                    sendResponse({"responseCode": "success"});
-                    break;
-                case "turn_off":
-                    chrome.tabs.sendMessage(sender.tab.id, {
-                        "type": "server_output",
-                        "command": "unload_extension"
-                    });
-                    sendResponse( {"output": "The extension is now off."} );
-            }
-    }
-    return true;
-});
+function updateAnnotationData(annotId, studyPin, opened, helpful) {
+  let url = "https://www.annotatednews.com/updateAnnotationStats";
+  var data = {
+    "annot_id": annotId,
+    "study_pin": studyPin,
+    "opened": opened,
+    "helpful": helpful,
+  };
 
+  postData(url, data)
+    .then(serverResponse => console.log(serverResponse));
+}
 
-chrome.runtime.onInstalled.addListener(function() {
-    //settup the extension on install.
+function updateUserInteractionsTable(studyPin, sourceType, loadTime, endTime){
+  let url = "https://www.annotatednews.com/updateExtensionStats";
+  var data = {
+    "study_pin": studyPin,
+    "source_type": sourceType,
+    "load_time": loadTime,
+    "end_time": endTime
+  };
+
+  postData(url, data)
+    .then(serverResponse => console.log(serverResponse));
+}
+
+chrome.runtime.onMessage.addListener(function(request, sender, sendResponse) {
+  switch (request.type) {
+    case "server_request":
+      switch (request.command) {
+        case "turn_on":
+          let thisURL = request.url;
+          let thisTAB = sender.tab.id;
+          chrome.storage.local.get('studyPin', function(result){
+              let thisUSER = result.studyPin;
+              console.log(thisURL);
+              console.log(thisUSER);
+              loadExtension(thisURL, thisUSER, thisTAB);
+          });
+          break;
+        case "update_annotation_database":
+          var annotId = request.annotId;
+          var opened = request.newOpen; // 1 if this is a new open, 0 if no event...
+          // sum all entries on same annotId in order to get the total number of opened and helpful/unhelpful.
+          // if this is just an "open" event, helpful will be 0 and there is no change to the total
+          // helpful value.
+          var helpful = request.helpful;
+          chrome.storage.local.get('studyPin', function(result){
+            updateAnnotationData(annotId, result.studyPin, opened, helpful);
+          });
+      }
+  }
+  return true;
 });

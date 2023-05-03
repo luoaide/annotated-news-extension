@@ -2,25 +2,17 @@
     margin: 0;
     border: 0px solid red;
     text-align: center;
-    padding: 5px;
+    margin: 5px;
+    position: inline-block;
+}
+
+body {
+  width: 300px;
 }
 
 @font-face {
     font-family: "Cheltenham";
-    src: url("Cheltenham.otf") format("opentype");
-}
-
-#main {
-    width: 300px;
-    height: 400px;
-}
-
-.button {
-    width: 90%;
-    height: 50px;
-}
-.button:hover {
-    cursor: pointer;
+    src: url("src/Cheltenham.otf") format("opentype");
 }
 
 #header {
@@ -44,5 +36,56 @@
 #logo {
     position: relative;
     z-index: 21;
-    height: 50px;
+    height: 70px;
+}
+
+.panel {
+
+}
+
+.status-text {
+  font-size: 15px;
+  overflow-x: auto;
+}
+
+#userBox {
+  border: 1px solid black;
+  border-radius: 5px;
+  margin-top: 10px;
+  padding: 5px;
+}
+
+#responsePanel {
+  display: None;
+}
+
+#syncButton {
+  margin: 10px;
+  margin-bottom: 20px;
+}
+
+#syncPanel {
+  display: None;
+}
+
+#mainPanel {
+  display: None;
+}
+
+#checkmark {
+  display: None;
+}
+
+#redx {
+  display: None;
+}
+
+#removeAnnotations {
+  display: none;
+  margin: 5px;
+}
+
+#loadAnnotations {
+  display: none;
+  margin: 5px;
 }
